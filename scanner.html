@@ -4,28 +4,32 @@ const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSuSiA4ruPfHIm-
 let museumData = [];
 const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
 
-// 🔐 LOGIN CHECK
-const user = JSON.parse(localStorage.getItem("user"));
+// ✅ SAFE LOGIN CHECK
+let user = null;
+try {
+  user = JSON.parse(localStorage.getItem("user"));
+} catch (e) {}
+
 if (!user) {
   alert("Login required");
   window.location.href = "login.html";
 }
 
-// 📥 LOAD DATA
+// 📥 LOAD CSV
 Papa.parse(CSV_URL, {
   download: true,
   header: true,
   complete: (results) => {
     museumData = results.data;
-    console.log("Data loaded:", museumData.length);
+    console.log("Loaded:", museumData.length);
   }
 });
 
-// 🔗 FORMAT DRIVE IMAGE
+// 🔗 IMAGE FIX
 function formatDriveLink(url) {
   if (!url || !url.includes("drive.google.com")) return url;
-  let fileId = "";
   try {
+    let fileId = "";
     if (url.includes("/file/d/")) {
       fileId = url.split("/file/d/")[1].split("/")[0];
     } else if (url.includes("id=")) {
@@ -37,7 +41,7 @@ function formatDriveLink(url) {
   }
 }
 
-// 🔍 SEARCH FUNCTION (USED BY BOTH QR + MANUAL)
+// 🔍 SEARCH
 function searchSpecimen(id) {
   if (!id) return;
 
@@ -81,30 +85,39 @@ function searchSpecimen(id) {
   }
 }
 
-// 📷 QR SCANNER
-const html5QrCode = new Html5Qrcode("reader");
+// 📷 SCANNER SAFE INIT
+let html5QrCode;
 
 function startScanner() {
-  document.getElementById('start-btn').style.display = 'none';
+  try {
+    html5QrCode = new Html5Qrcode("reader");
 
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    (text) => {
-      html5QrCode.stop().then(() => {
-        document.getElementById('start-btn').style.display = 'block';
-        searchSpecimen(text);
-      });
-    }
-  ).catch(() => {
-    alert("Camera permission required");
-    document.getElementById('start-btn').style.display = 'block';
-  });
+    document.getElementById('start-btn').style.display = 'none';
+
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: 250 },
+      (text) => {
+        html5QrCode.stop().then(() => {
+          document.getElementById('start-btn').style.display = 'block';
+          searchSpecimen(text);
+        });
+      }
+    ).catch(err => {
+      alert("Camera error");
+      console.error(err);
+      document.getElementById('start-btn').style.display = 'block';
+    });
+
+  } catch (e) {
+    alert("Scanner failed to load");
+    console.error(e);
+  }
 }
 
-// ⌨️ MANUAL ENTRY BUTTON FIX
-document.querySelector("button[onclick]").onclick = () => {
+// ⌨️ MANUAL BUTTON (SAFE)
+function manualSearch() {
   const id = document.getElementById('manualId').value;
   searchSpecimen(id);
-};
+}
 </script>
