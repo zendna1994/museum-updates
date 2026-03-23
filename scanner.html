@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>ZEN DNA Scanner</title>
@@ -7,113 +7,81 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body { font-family: Arial; margin:0; background:#f4f4f4; }
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #111;
+    color: white;
+    text-align: center;
+}
 
-.topbar {
-    background:#0f2027;
-    color:white;
-    padding:12px;
-    display:flex;
-    justify-content:space-between;
+header {
+    background: #2c5364;
+    padding: 15px;
+    font-size: 20px;
 }
 
 #reader {
-    width:300px;
-    margin:20px auto;
+    width: 300px;
+    margin: 30px auto;
 }
 
-.result {
-    background:white;
-    margin:20px;
-    padding:20px;
-    border-radius:10px;
+.result-box {
+    margin-top: 20px;
+    padding: 15px;
+    background: #222;
+    border-radius: 10px;
 }
 
-button { padding:10px; margin:5px; }
+button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    background: red;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="topbar">
-    <div>ZEN DNA</div>
-    <div id="userInfo"></div>
-</div>
+<header>ZEN DNA Scanner</header>
 
 <div id="reader"></div>
 
-<div style="text-align:center;">
-    <input id="manualId" placeholder="Enter Specimen ID">
-    <button onclick="manualSearch()">Search</button>
-    <button onclick="logout()">Logout</button>
-</div>
+<div class="result-box" id="result">Scan a QR Code</div>
 
-<div id="result" class="result"></div>
+<button onclick="logout()">Logout</button>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbylLS7JQhgwXGxd4O8AMhqEBuep0BHpmwXT6A1Hv2FJEdJLICh3fD_bljbUGklBVTLZ/exec";
-
 // 🔐 CHECK LOGIN
 const user = JSON.parse(localStorage.getItem("user"));
-if(!user){
+if (!user) {
     window.location.href = "login.html";
 }
 
-document.getElementById("userInfo").innerText = "Logged in: " + user.name;
-
-
-// 🔍 FETCH SPECIMEN
-async function getData(id){
-
-    const res = await fetch(API,{
-        method:"POST",
-        body: JSON.stringify({
-            action:"getSpecimen",
-            id:id
-        }),
-        headers:{
-            "Content-Type":"text/plain;charset=utf-8"
-        }
-    });
-
-    const data = await res.json();
-    console.log(data);
-
-    if(data.status === "ok"){
-        document.getElementById("result").innerHTML = `
-            <h3>${data.sci}</h3>
-            <p>${data.com}</p>
-            <img src="${data.img}" width="200"><br><br>
-            <a href="${data.pdf}" target="_blank">View PDF</a>
-        `;
-    } else {
-        alert("Specimen not found");
-    }
+// 📷 QR SCANNER
+function onScanSuccess(decodedText) {
+    document.getElementById("result").innerHTML =
+        "<b>Scanned Code:</b><br>" + decodedText;
 }
 
+const html5QrCode = new Html5Qrcode("reader");
 
-// 📷 QR SCANNER
-const qr = new Html5Qrcode("reader");
-
-qr.start(
-    { facingMode:"environment" },
-    { fps:10, qrbox:250 },
-    (decodedText)=>{
-        getData(decodedText);
-    }
+html5QrCode.start(
+    { facingMode: "environment" },
+    {
+        fps: 10,
+        qrbox: 250
+    },
+    onScanSuccess
 );
 
-
-// 🔎 MANUAL SEARCH
-function manualSearch(){
-    const id = document.getElementById("manualId").value;
-    getData(id);
-}
-
-
-// 🚪 LOGOUT
-function logout(){
+// 🔓 LOGOUT
+function logout() {
     localStorage.removeItem("user");
     window.location.href = "login.html";
 }

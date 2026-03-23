@@ -1,93 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>ZEN DNA Login</title>
 
 <style>
 body {
+    margin: 0;
     font-family: Arial;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    margin:0;
-    color:white;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-.box {
-    background: rgba(255,255,255,0.1);
-    padding:30px;
-    border-radius:12px;
-    width:300px;
-    text-align:center;
+
+.login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
+
+h2 {
+    margin-bottom: 20px;
+}
+
 input {
-    width:90%;
-    padding:10px;
-    margin:10px 0;
-    border:none;
-    border-radius:6px;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
 }
+
 button {
-    padding:10px 20px;
-    border:none;
-    background:#00c6ff;
-    color:black;
-    font-weight:bold;
-    border-radius:6px;
-    cursor:pointer;
+    width: 100%;
+    padding: 10px;
+    background: #2c5364;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #203a43;
 }
 </style>
-</head>
 
+</head>
 <body>
 
-<div class="box">
-    <h2>ZEN DNA LOGIN</h2>
-
-    <input id="id" placeholder="Dept ID / Staff Code">
-    <input id="pass" type="password" placeholder="Password">
-
-    <button onclick="login()">LOGIN</button>
+<div class="login-box">
+    <h2>ZEN DNA</h2>
+    <input type="text" id="id" placeholder="Enter ID">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
 </div>
 
 <script>
+async function login() {
 
-const API = "https://script.google.com/macros/s/AKfycbylLS7JQhgwXGxd4O8AMhqEBuep0BHpmwXT6A1Hv2FJEdJLICh3fD_bljbUGklBVTLZ/exec";
+  const id = document.getElementById("id").value.trim();
+  const password = document.getElementById("password").value.trim();
 
-async function login(){
+  const url = `https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec?id=${id}&password=${password}`;
 
-    const id = document.getElementById("id").value.trim();
-    const pass = document.getElementById("pass").value.trim();
-
-    const res = await fetch(API,{
-        method:"POST",
-        body: JSON.stringify({
-            action:"login",
-            id:id,
-            password:pass
-        }),
-        headers:{
-            "Content-Type":"text/plain;charset=utf-8"
-        }
-    });
-
+  try {
+    const res = await fetch(url);
     const data = await res.json();
-    console.log(data);
 
-    if(data.status === "ok"){
-        localStorage.setItem("user", JSON.stringify(data));
-        window.location.href = "scanner.html";
+    if (data.status === "success") {
+      localStorage.setItem("user", JSON.stringify(data));
+      window.location.href = "scanner.html";
     }
-    else if(data.status === "not_approved"){
-        alert("User not approved");
+    else if (data.status === "not_approved") {
+      alert("Access not approved");
     }
-    else{
-        alert("Invalid login");
+    else {
+      alert("Invalid ID or Password");
     }
+
+  } catch (err) {
+    alert("Server error");
+    console.error(err);
+  }
 }
-
 </script>
 
 </body>
