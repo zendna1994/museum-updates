@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ZEN DNA Scanner</title>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<style>
+body { font-family: Arial; margin:0; background:#f4f4f4; }
+
+.topbar {
+    background:#0f2027;
+    color:white;
+    padding:12px;
+    display:flex;
+    justify-content:space-between;
+}
+
+#reader {
+    width:300px;
+    margin:20px auto;
+}
+
+.result {
+    background:white;
+    margin:20px;
+    padding:20px;
+    border-radius:10px;
+}
+
+button { padding:10px; margin:5px; }
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div>ZEN DNA</div>
+    <div id="userInfo"></div>
+</div>
+
+<div id="reader"></div>
+
+<div style="text-align:center;">
+    <input id="manualId" placeholder="Enter Specimen ID">
+    <button onclick="manualSearch()">Search</button>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<div id="result" class="result"></div>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbylLS7JQhgwXGxd4O8AMhqEBuep0BHpmwXT6A1Hv2FJEdJLICh3fD_bljbUGklBVTLZ/exec";
+
+// 🔐 CHECK LOGIN
+const user = JSON.parse(localStorage.getItem("user"));
+if(!user){
+    window.location.href = "login.html";
+}
+
+document.getElementById("userInfo").innerText = "Logged in: " + user.name;
+
+
+// 🔍 FETCH SPECIMEN
+async function getData(id){
+
+    const res = await fetch(API,{
+        method:"POST",
+        body: JSON.stringify({
+            action:"getSpecimen",
+            id:id
+        }),
+        headers:{
+            "Content-Type":"text/plain;charset=utf-8"
+        }
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if(data.status === "ok"){
+        document.getElementById("result").innerHTML = `
+            <h3>${data.sci}</h3>
+            <p>${data.com}</p>
+            <img src="${data.img}" width="200"><br><br>
+            <a href="${data.pdf}" target="_blank">View PDF</a>
+        `;
+    } else {
+        alert("Specimen not found");
+    }
+}
+
+
+// 📷 QR SCANNER
+const qr = new Html5Qrcode("reader");
+
+qr.start(
+    { facingMode:"environment" },
+    { fps:10, qrbox:250 },
+    (decodedText)=>{
+        getData(decodedText);
+    }
+);
+
+
+// 🔎 MANUAL SEARCH
+function manualSearch(){
+    const id = document.getElementById("manualId").value;
+    getData(id);
+}
+
+
+// 🚪 LOGOUT
+function logout(){
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+
+</script>
+
+</body>
+</html>

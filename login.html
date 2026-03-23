@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ZEN DNA Login</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin:0;
+    color:white;
+}
+.box {
+    background: rgba(255,255,255,0.1);
+    padding:30px;
+    border-radius:12px;
+    width:300px;
+    text-align:center;
+}
+input {
+    width:90%;
+    padding:10px;
+    margin:10px 0;
+    border:none;
+    border-radius:6px;
+}
+button {
+    padding:10px 20px;
+    border:none;
+    background:#00c6ff;
+    color:black;
+    font-weight:bold;
+    border-radius:6px;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>ZEN DNA LOGIN</h2>
+
+    <input id="id" placeholder="Dept ID / Staff Code">
+    <input id="pass" type="password" placeholder="Password">
+
+    <button onclick="login()">LOGIN</button>
+</div>
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbylLS7JQhgwXGxd4O8AMhqEBuep0BHpmwXT6A1Hv2FJEdJLICh3fD_bljbUGklBVTLZ/exec";
+
+async function login(){
+
+    const id = document.getElementById("id").value.trim();
+    const pass = document.getElementById("pass").value.trim();
+
+    const res = await fetch(API,{
+        method:"POST",
+        body: JSON.stringify({
+            action:"login",
+            id:id,
+            password:pass
+        }),
+        headers:{
+            "Content-Type":"text/plain;charset=utf-8"
+        }
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if(data.status === "ok"){
+        localStorage.setItem("user", JSON.stringify(data));
+        window.location.href = "scanner.html";
+    }
+    else if(data.status === "not_approved"){
+        alert("User not approved");
+    }
+    else{
+        alert("Invalid login");
+    }
+}
+
+</script>
+
+</body>
+</html>
