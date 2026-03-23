@@ -1,47 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEN DNA Scanner</title>
+
+<!-- ✅ QR Scanner -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<!-- ✅ PapaParse (IMPORTANT) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --zen-green: #27ae60;
+  --zen-dark: #1a2a22;
+  --zen-light: #f8fdfa;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #eef2f3;
+  margin: 0;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  padding: 25px;
+  border-radius: 25px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+#reader {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.btn {
+  width: 100%;
+  padding: 15px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: var(--zen-green);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+#resultCard {
+  display: none;
+  margin-top: 20px;
+}
+
+.specimen-img {
+  width: 100%;
+  border-radius: 10px;
+}
+
+.sci-name {
+  font-style: italic;
+  font-size: 1.3rem;
+}
+
+.com-name {
+  color: gray;
+  margin-bottom: 10px;
+}
+
+.info {
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h1>ZEN DNA Scanner</h1>
+  </div>
+
+  <!-- Scan Button -->
+  <button class="btn" onclick="startScanner()">SCAN QR</button>
+
+  <!-- QR Reader -->
+  <div id="reader"></div>
+
+  <!-- Manual Entry -->
+  <input type="text" id="manualId" placeholder="Enter ID manually">
+  <button class="btn" onclick="manualSearch()">Search</button>
+
+  <!-- Result -->
+  <div id="resultCard">
+    <img id="resImg" class="specimen-img">
+    <h2 id="resSci" class="sci-name"></h2>
+    <div id="resCom" class="com-name"></div>
+
+    <div class="info"><b>ID:</b> <span id="resId"></span></div>
+    <div class="info"><b>Phylum:</b> <span id="resPhy"></span></div>
+    <div class="info"><b>Class:</b> <span id="resCla"></span></div>
+    <div class="info"><b>Sex:</b> <span id="resSex"></span></div>
+    <div class="info"><b>Preparation:</b> <span id="resPrep"></span></div>
+  </div>
+
+</div>
+
 <script>
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSuSiA4ruPfHIm-dZVX_SBh5rk69JUkCmPdQX4ym1uJ6sjDSHSzwepK7coDEhITweiLuLJR8gbvcLwa/pub?output=csv';
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuSiA4ruPfHIm-dZVX_SBh5rk69JUkCmPdQX4ym1uJ6sjDSHSzwepK7coDEhITweiLuLJR8gbvcLwa/pub?output=csv";
 
 let museumData = [];
-const beep = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3");
 
-// ✅ SAFE LOGIN CHECK
+// 🔐 LOGIN CHECK
 let user = null;
 try {
   user = JSON.parse(localStorage.getItem("user"));
-} catch (e) {}
+} catch {}
 
 if (!user) {
   alert("Login required");
   window.location.href = "login.html";
 }
 
-// 📥 LOAD CSV
+// 📥 LOAD DATA
 Papa.parse(CSV_URL, {
   download: true,
   header: true,
-  complete: (results) => {
+  complete: function(results) {
     museumData = results.data;
     console.log("Loaded:", museumData.length);
   }
 });
 
-// 🔗 IMAGE FIX
+// 🔗 FIX IMAGE
 function formatDriveLink(url) {
-  if (!url || !url.includes("drive.google.com")) return url;
+  if (!url) return "";
+  if (!url.includes("drive.google.com")) return url;
+
   try {
-    let fileId = "";
+    let id = "";
     if (url.includes("/file/d/")) {
-      fileId = url.split("/file/d/")[1].split("/")[0];
+      id = url.split("/file/d/")[1].split("/")[0];
     } else if (url.includes("id=")) {
-      fileId = url.split("id=")[1].split("&")[0];
+      id = url.split("id=")[1].split("&")[0];
     }
-    return `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`;
+    return `https://drive.google.com/thumbnail?sz=w1000&id=${id}`;
   } catch {
     return url;
   }
 }
 
-// 🔍 SEARCH
+// 🔍 SEARCH FUNCTION
 function searchSpecimen(id) {
   if (!id) return;
 
@@ -49,75 +185,51 @@ function searchSpecimen(id) {
     String(row.Unique_ID).trim().toUpperCase() === id.trim().toUpperCase()
   );
 
-  if (specimen) {
-    beep.play();
-
-    document.getElementById('success-popup').style.display = 'block';
-    setTimeout(() => {
-      document.getElementById('success-popup').style.display = 'none';
-    }, 2000);
-
-    document.getElementById('resultCard').style.display = 'block';
-
-    document.getElementById('resId').innerText = specimen.Unique_ID || "N/A";
-    document.getElementById('resSci').innerText = specimen.Scientific_Name || "N/A";
-    document.getElementById('resCom').innerText = specimen.Common_Name || "N/A";
-    document.getElementById('resPhy').innerText = specimen.Phylum || "N/A";
-    document.getElementById('resCla').innerText = specimen.Class || "N/A";
-    document.getElementById('resSex').innerText = specimen.Sex || "N/A";
-    document.getElementById('resPrep').innerText = specimen.Preparation || "N/A";
-
-    document.getElementById('resImg').src = formatDriveLink(specimen.Image);
-    document.getElementById('resPdf').href = specimen.Pdf || "#";
-
-    const vBtn = document.getElementById('resVid');
-    if (specimen.video && specimen.video.trim() !== "") {
-      vBtn.href = specimen.video;
-      vBtn.style.display = 'block';
-    } else {
-      vBtn.style.display = 'none';
-    }
-
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
-  } else {
+  if (!specimen) {
     alert("ID Not Found");
+    return;
   }
+
+  document.getElementById("resultCard").style.display = "block";
+
+  document.getElementById("resId").innerText = specimen.Unique_ID || "";
+  document.getElementById("resSci").innerText = specimen.Scientific_Name || "";
+  document.getElementById("resCom").innerText = specimen.Common_Name || "";
+  document.getElementById("resPhy").innerText = specimen.Phylum || "";
+  document.getElementById("resCla").innerText = specimen.Class || "";
+  document.getElementById("resSex").innerText = specimen.Sex || "";
+  document.getElementById("resPrep").innerText = specimen.Preparation || "";
+
+  document.getElementById("resImg").src = formatDriveLink(specimen.Image);
 }
 
-// 📷 SCANNER SAFE INIT
-let html5QrCode;
+// 📷 QR SCANNER
+let scanner;
 
 function startScanner() {
   try {
-    html5QrCode = new Html5Qrcode("reader");
+    scanner = new Html5Qrcode("reader");
 
-    document.getElementById('start-btn').style.display = 'none';
-
-    html5QrCode.start(
+    scanner.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: 250 },
-      (text) => {
-        html5QrCode.stop().then(() => {
-          document.getElementById('start-btn').style.display = 'block';
-          searchSpecimen(text);
-        });
+      (decodedText) => {
+        scanner.stop();
+        searchSpecimen(decodedText);
       }
-    ).catch(err => {
-      alert("Camera error");
-      console.error(err);
-      document.getElementById('start-btn').style.display = 'block';
-    });
-
-  } catch (e) {
-    alert("Scanner failed to load");
-    console.error(e);
+    );
+  } catch (err) {
+    alert("Camera error");
+    console.error(err);
   }
 }
 
-// ⌨️ MANUAL BUTTON (SAFE)
+// ⌨️ MANUAL SEARCH
 function manualSearch() {
-  const id = document.getElementById('manualId').value;
+  const id = document.getElementById("manualId").value;
   searchSpecimen(id);
 }
 </script>
+
+</body>
+</html>
