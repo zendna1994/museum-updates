@@ -5,229 +5,293 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZEN DNA Scanner</title>
 
-<!-- ✅ QR Scanner -->
 <script src="https://unpkg.com/html5-qrcode"></script>
-
-<!-- ✅ PapaParse (IMPORTANT) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
 :root {
-  --zen-green: #27ae60;
-  --zen-dark: #1a2a22;
-  --zen-light: #f8fdfa;
+  --green:#27ae60;
+  --dark:#1a2a22;
 }
 
 body {
   font-family: 'Poppins', sans-serif;
-  background: #eef2f3;
-  margin: 0;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background:#eef2f3;
+  display:flex;
+  justify-content:center;
+  padding:20px;
 }
 
 .container {
-  width: 100%;
-  max-width: 480px;
-  background: white;
-  padding: 25px;
-  border-radius: 25px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+  width:100%;
+  max-width:420px;
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
 }
 
-.header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.header h1 {
-  font-size: 1.2rem;
-  margin: 0;
-}
-
-#reader {
-  width: 100%;
-  margin-top: 10px;
-}
-
+/* BUTTON */
 .btn {
-  width: 100%;
-  padding: 15px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 10px;
-  background: var(--zen-green);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:var(--green);
+  color:white;
+  font-weight:600;
+  margin-top:10px;
 }
 
+/* INPUT */
 input {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
 }
 
+/* LOADING */
+#loading {
+  display:none;
+  text-align:center;
+  margin-top:15px;
+}
+
+/* RESULT CARD */
 #resultCard {
-  display: none;
-  margin-top: 20px;
+  display:none;
+  margin-top:20px;
+  animation:fadeIn 0.4s ease;
 }
 
-.specimen-img {
-  width: 100%;
-  border-radius: 10px;
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
 }
 
-.sci-name {
-  font-style: italic;
-  font-size: 1.3rem;
+img {
+  width:100%;
+  border-radius:12px;
 }
 
-.com-name {
-  color: gray;
-  margin-bottom: 10px;
+/* TABS */
+.tabs {
+  display:flex;
+  margin-top:10px;
 }
 
-.info {
-  margin-top: 10px;
+.tab {
+  flex:1;
+  padding:10px;
+  text-align:center;
+  cursor:pointer;
+  background:#eee;
+}
+
+.tab.active {
+  background:var(--green);
+  color:white;
+}
+
+.tab-content {
+  display:none;
+  margin-top:10px;
+}
+
+.tab-content.active {
+  display:block;
+}
+
+/* POPUP */
+#popup {
+  position:fixed;
+  top:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:red;
+  color:white;
+  padding:10px 20px;
+  border-radius:30px;
+  display:none;
 }
 </style>
 </head>
 
 <body>
 
+<div id="popup">Invalid / No Access</div>
+
 <div class="container">
 
-  <div class="header">
-    <h1>ZEN DNA Scanner</h1>
-  </div>
+<h2>ZEN DNA Scanner</h2>
 
-  <!-- Scan Button -->
-  <button class="btn" onclick="startScanner()">SCAN QR</button>
+<button class="btn" onclick="startScanner()">Scan QR</button>
 
-  <!-- QR Reader -->
-  <div id="reader"></div>
+<div id="reader"></div>
 
-  <!-- Manual Entry -->
-  <input type="text" id="manualId" placeholder="Enter ID manually">
-  <button class="btn" onclick="manualSearch()">Search</button>
+<input type="text" id="manualId" placeholder="Enter ID">
+<button class="btn" onclick="manualSearch()">Search</button>
 
-  <!-- Result -->
-  <div id="resultCard">
-    <img id="resImg" class="specimen-img">
-    <h2 id="resSci" class="sci-name"></h2>
-    <div id="resCom" class="com-name"></div>
+<div id="loading">Loading...</div>
 
-    <div class="info"><b>ID:</b> <span id="resId"></span></div>
-    <div class="info"><b>Phylum:</b> <span id="resPhy"></span></div>
-    <div class="info"><b>Class:</b> <span id="resCla"></span></div>
-    <div class="info"><b>Sex:</b> <span id="resSex"></span></div>
-    <div class="info"><b>Preparation:</b> <span id="resPrep"></span></div>
-  </div>
+<div id="resultCard">
+
+<img id="resImg">
+
+<h3 id="resSci"></h3>
+<p id="resCom"></p>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="openTab(0)">Info</div>
+  <div class="tab" onclick="openTab(1)">Resources</div>
+</div>
+
+<div class="tab-content active">
+  <p><b>ID:</b> <span id="resId"></span></p>
+  <p><b>Phylum:</b> <span id="resPhy"></span></p>
+  <p><b>Class:</b> <span id="resCla"></span></p>
+</div>
+
+<div class="tab-content">
+  <a id="resPdf" target="_blank">📘 Open Book</a><br><br>
+  <a id="resVid" target="_blank">▶ Video</a>
+</div>
+
+</div>
 
 </div>
 
 <script>
-const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRTzNxCuuF8I0h64nf5YHfMANlBx08JfjHuSF4TUguLaamNPihaL9s-FaUcIwphKt5ilUMyLr525a8/pub?gid=357903049&single=true&output=csv";
+const API_URL = "YOUR_API_URL_HERE";
 
-let museumData = [];
+const successSound = new Audio("https://cdn.pixabay.com/audio/2022/03/15/audio_c8c8a73467.mp3");
+const errorSound = new Audio("https://cdn.pixabay.com/audio/2022/03/10/audio_7c2c6c9f1b.mp3");
 
-// 🔐 LOGIN CHECK
-let user = null;
-try {
-  user = JSON.parse(localStorage.getItem("user"));
-} catch {}
+// USER ROLE
+let user = JSON.parse(localStorage.getItem("user")) || { role: "student" };
 
-if (!user) {
-  alert("Login required");
-  window.location.href = "login.html";
+// ACCESS CHECK
+function hasAccess(level) {
+  if (!level || level === "") return true;
+
+  level = Number(level);
+
+  if (level === 1) {
+    return ["staff","hod","admin"].includes(user.role.toLowerCase());
+  }
+
+  if (level === 3) {
+    return ["hod","admin"].includes(user.role.toLowerCase());
+  }
+
+  return false;
 }
 
-// 📥 LOAD DATA
-Papa.parse(CSV_URL, {
-  download: true,
-  header: true,
-  complete: function(results) {
-    museumData = results.data;
-    console.log("Loaded:", museumData.length);
-  }
-});
+// SEARCH
+function searchSpecimen(id) {
+  if (!id) return;
 
-// 🔗 FIX IMAGE
+  document.getElementById("loading").style.display = "block";
+
+  fetch(`${API_URL}?id=${id}`)
+    .then(res => res.json())
+    .then(res => {
+      document.getElementById("loading").style.display = "none";
+
+      if (res.status !== "success") {
+        showError();
+        return;
+      }
+
+      const s = res.data;
+
+      if (!hasAccess(s["Access level"])) {
+        showError();
+        return;
+      }
+
+      successSound.play();
+
+      document.getElementById("resultCard").style.display = "block";
+
+      document.getElementById("resId").innerText = s.Unique_ID;
+      document.getElementById("resSci").innerText = s.Scientific_Name;
+      document.getElementById("resCom").innerText = s.Common_Name;
+      document.getElementById("resPhy").innerText = s.Phylum;
+      document.getElementById("resCla").innerText = s.Class;
+
+      document.getElementById("resImg").src = formatDriveLink(s.Image);
+
+      document.getElementById("resPdf").href = s.Pdf || "#";
+
+      const vid = document.getElementById("resVid");
+      if (s.Video) {
+        vid.href = s.Video;
+        vid.style.display = "block";
+      } else {
+        vid.style.display = "none";
+      }
+
+    })
+    .catch(err => {
+      document.getElementById("loading").style.display = "none";
+      showError();
+    });
+}
+
+// ERROR POPUP
+function showError() {
+  errorSound.play();
+  const p = document.getElementById("popup");
+  p.style.display = "block";
+  setTimeout(()=>p.style.display="none",2000);
+}
+
+// FORMAT IMAGE
 function formatDriveLink(url) {
   if (!url) return "";
-  if (!url.includes("drive.google.com")) return url;
-
   try {
-    let id = "";
-    if (url.includes("/file/d/")) {
-      id = url.split("/file/d/")[1].split("/")[0];
-    } else if (url.includes("id=")) {
-      id = url.split("id=")[1].split("&")[0];
-    }
-    return `https://drive.google.com/thumbnail?sz=w1000&id=${id}`;
+    let id = url.split("/d/")[1].split("/")[0];
+    return `https://drive.google.com/thumbnail?id=${id}`;
   } catch {
     return url;
   }
 }
 
-// 🔍 SEARCH FUNCTION
-function searchSpecimen(id) {
-  if (!id) return;
-
-  const specimen = museumData.find(row =>
-    String(row.Unique_ID).trim().toUpperCase() === id.trim().toUpperCase()
-  );
-
-  if (!specimen) {
-    alert("ID Not Found");
-    return;
-  }
-
-  document.getElementById("resultCard").style.display = "block";
-
-  document.getElementById("resId").innerText = specimen.Unique_ID || "";
-  document.getElementById("resSci").innerText = specimen.Scientific_Name || "";
-  document.getElementById("resCom").innerText = specimen.Common_Name || "";
-  document.getElementById("resPhy").innerText = specimen.Phylum || "";
-  document.getElementById("resCla").innerText = specimen.Class || "";
-  document.getElementById("resSex").innerText = specimen.Sex || "";
-  document.getElementById("resPrep").innerText = specimen.Preparation || "";
-
-  document.getElementById("resImg").src = formatDriveLink(specimen.Image);
-}
-
-// 📷 QR SCANNER
+// QR
 let scanner;
 
 function startScanner() {
-  try {
-    scanner = new Html5Qrcode("reader");
+  scanner = new Html5Qrcode("reader");
 
-    scanner.start(
-      { facingMode: "environment" },
-      { fps: 10, qrbox: 250 },
-      (decodedText) => {
-        scanner.stop();
-        searchSpecimen(decodedText);
-      }
-    );
-  } catch (err) {
-    alert("Camera error");
-    console.error(err);
-  }
+  scanner.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: 250 },
+    text => {
+      scanner.stop();
+      searchSpecimen(text);
+    }
+  );
 }
 
-// ⌨️ MANUAL SEARCH
+// MANUAL
 function manualSearch() {
-  const id = document.getElementById("manualId").value;
-  searchSpecimen(id);
+  searchSpecimen(document.getElementById("manualId").value);
+}
+
+// TABS
+function openTab(i) {
+  document.querySelectorAll(".tab").forEach((t,idx)=>{
+    t.classList.toggle("active", idx===i);
+  });
+
+  document.querySelectorAll(".tab-content").forEach((c,idx)=>{
+    c.classList.toggle("active", idx===i);
+  });
 }
 </script>
 
