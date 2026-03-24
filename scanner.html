@@ -3,65 +3,58 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ZEN Scanner</title>
-
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <style>
-body { font-family: Arial; background:#eef2f3; text-align:center; }
+  body { font-family: Arial, sans-serif; background:#eef2f3; text-align:center; padding: 10px; margin: 0; }
+  .container { background:white; padding:20px; border-radius:15px; max-width:400px; margin: 20px auto; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+  
+  #result { display:none; margin-top:20px; border-top: 2px solid #eee; padding-top: 15px; }
+  #tree { font-family: 'Courier New', monospace; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; color: #333; }
+  
+  #adminPanel { background:#fff; padding:15px; margin-top:20px; border-radius: 10px; border: 2px solid #3498db; text-align: left; }
+  #adminPanel h3 { margin-top: 0; color: #2c3e50; }
+  
+  #historyBox { margin-top:20px; text-align: left; background: #fff; padding: 10px; border-radius: 10px; border: 1px solid #eee; }
+  #historyList { padding-left: 20px; color: #555; }
 
-.container {
-  background:white;
-  padding:20px;
-  border-radius:15px;
-  max-width:400px;
-  margin:auto;
-}
+  img { width:100%; border-radius:10px; margin-bottom: 10px; }
+  button, input { width:100%; padding:12px; margin-top:10px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; }
+  button { background: #3498db; color: white; border: none; cursor: pointer; transition: 0.3s; }
+  button:hover { background: #2980b9; }
 
-#result { display:none; margin-top:20px; }
-
-/* Styling for your new History Box */
-#historyBox { 
-  margin-top:20px; 
-  border-top: 1px solid #ddd; 
-  padding-top: 10px; 
-  text-align: left;
-}
-#historyList { padding-left: 20px; color: #555; }
-
-img { width:100%; border-radius:10px; }
-
-button, input {
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-}
+  #profile { display:none; position:fixed; top:20%; left:5%; right:5%; background:white; padding:25px; border-radius:15px; box-shadow: 0 0 30px rgba(0,0,0,0.4); z-index: 2000; }
 </style>
 </head>
-
 <body>
 
 <div class="container">
+  <h3>ZEN DNA Scanner</h3>
+  
+  <button onclick="startScanner()">📷 Scan QR Code</button>
+  <div id="reader" style="width: 100%; margin-top: 10px;"></div>
 
-<h3>ZEN DNA Scanner</h3>
+  <input id="manual" placeholder="Enter Specimen ID">
+  <button onclick="manualSearch()">🔍 Search ID</button>
+  <button onclick="showProfile()" style="background:#7f8c8d;">👤 My Profile</button>
 
-<button onclick="startScanner()">Scan QR</button>
-<div id="reader"></div>
+  <div id="adminPanel" style="display:none;">
+    <h3>Admin Dashboard</h3>
+    <p>Total Users: <b id="a_users">...</b></p>
+    <p>Total Specimens: <b id="a_specimens">...</b></p>
+    <p>Total Scans: <b id="a_logs">...</b></p>
+    <button onclick="loadAdmin()" style="background:#2ecc71;">Refresh Stats</button>
+  </div>
 
-<input id="manual" placeholder="Enter ID">
-<button onclick="manualSearch()">Search</button>
+  <div id="result">
+    <img id="img">
+    <h3 id="sci" style="margin: 5px 0;"></h3>
+    <p id="com" style="color: #666; font-style: italic;"></p>
+    <p><b>ID:</b> <span id="uid"></span></p>
+    
+    <div id="tree" style="text-align:left; margin-top:15px;"></div>
 
-<button onclick="showProfile()">👤 Profile</button>
-
-<div id="result">
-  <img id="img">
-  <h3 id="sci"></h3>
-  <p id="com"></p>
-
-  <p><b>ID:</b> <span id="uid"></span></p>
-  <p><b>Phylum:</b> <span id="phy"></span></p>
-  <p><b>Class:</b> <span id="cls"></span></p>
-
-  <iframe id="pdf" width="100%" height="300"></iframe>
+    <iframe id="pdf" width="100%" height="300" style="margin-top:15px; border-radius: 8px; border: 1px solid #ddd;"></iframe>
+  </div>
 
   <div id="historyBox">
     <h4>Recent Scans</h4>
@@ -69,133 +62,114 @@ button, input {
   </div>
 </div>
 
-</div>
-
-<div id="profile" style="display:none; position:fixed; top:20%; left:10%; width:80%; background:white; padding:20px; border-radius:10px; z-index:1000; border: 1px solid #ccc;">
+<div id="profile">
   <h3>User Profile</h3>
   <p id="pname"></p>
   <p id="pid"></p>
   <p id="prole"></p>
   <p id="pemail"></p>
-
-  <button onclick="logout()">Logout</button>
-  <button onclick="closeProfile()">Close</button>
+  <button onclick="logout()" style="background:#e74c3c;">Logout</button>
+  <button onclick="closeProfile()" style="background:#95a5a6; margin-top: 10px;">Close</button>
 </div>
 
 <script>
-
+// UPDATED API URL
 const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY = "ZEN_DNA_2026";
 
-// 🔐 LOGIN CHECK
 let user = JSON.parse(localStorage.getItem("user"));
-if (!user) {
-  alert("Login required");
-  window.location = "index.html";
+if (!user) { window.location = "index.html"; }
+
+// AUTO LOAD ADMIN IF ROLE IS 2 (Admin/HOD)
+if (user.role == 2) {
+  document.getElementById("adminPanel").style.display = "block";
+  loadAdmin();
 }
 
-// 📍 LOCATION CHECK
-navigator.geolocation.getCurrentPosition(pos => {
-  let d = distance(pos.coords.latitude, pos.coords.longitude, 13.0632, 80.234);
-  if (d > 0.5) {
-    alert("Outside allowed area");
-    logout();
-  }
-});
-
-function distance(lat1, lon1, lat2, lon2) {
-  let R = 6371;
-  let dLat = (lat2-lat1)*Math.PI/180;
-  let dLon = (lon2-lon1)*Math.PI/180;
-  let a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// 🔍 SEARCH
 function search(id) {
   fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
   .then(res => res.json())
   .then(res => {
-    if (res.status === "restricted") { alert("Access Denied"); return; }
-    if (res.status !== "success") { alert("Not Found"); return; }
+    if (res.status !== "success") { 
+      alert(res.status === "restricted" ? "Access Denied: Level Too High" : "Specimen Not Found"); 
+      return; 
+    }
 
     let s = res.data;
     document.getElementById("result").style.display = "block";
-
     document.getElementById("uid").innerText = s.Unique_ID;
     document.getElementById("sci").innerText = s.Scientific_Name;
     document.getElementById("com").innerText = s.Common_Name;
-    document.getElementById("phy").innerText = s.Phylum;
-    document.getElementById("cls").innerText = s.Class;
+    
+    // Format Media
+    document.getElementById("img").src = "https://drive.google.com/thumbnail?id=" + s.Image.split("/d/")[1].split("/")[0];
+    document.getElementById("pdf").src = "https://drive.google.com/file/d/" + s.Pdf.split("/d/")[1].split("/")[0] + "/preview";
 
-    document.getElementById("img").src = formatImg(s.Image);
-    document.getElementById("pdf").src = formatPdf(s.Pdf);
+    // CLASSIFICATION TREE
+    document.getElementById("tree").innerHTML = `
+      <b>Classification</b><br>
+      └── Phylum: ${s.Phylum}<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;└── Class: ${s.Class}
+    `;
 
     saveHistory(s.Unique_ID);
-    updateHistoryUI(); // Refresh the list visual
   });
 }
 
-function startScanner() {
-  let scanner = new Html5Qrcode("reader");
-  scanner.start({ facingMode: "environment" }, { fps:10 }, txt => {
-    scanner.stop();
-    search(txt);
-  });
+function loadAdmin() {
+  fetch(`${API}?action=adminData&key=${KEY}`)
+    .then(res => res.json())
+    .then(res => {
+      if (res.status !== "success") return;
+      document.getElementById("a_users").innerText = res.users;
+      document.getElementById("a_specimens").innerText = res.specimens;
+      document.getElementById("a_logs").innerText = res.logs;
+    });
 }
 
-function manualSearch() {
-  search(document.getElementById("manual").value);
-}
-
-function formatPdf(url) {
-  let id = url.split("/d/")[1].split("/")[0];
-  return "https://drive.google.com/file/d/"+id+"/preview";
-}
-
-function formatImg(url) {
-  let id = url.split("/d/")[1].split("/")[0];
-  return "https://drive.google.com/thumbnail?id="+id;
-}
-
-function showProfile() {
-  document.getElementById("profile").style.display = "block";
-  document.getElementById("pname").innerText = user.name;
-  document.getElementById("pid").innerText = user.id;
-  document.getElementById("prole").innerText = user.role;
-  document.getElementById("pemail").innerText = user.email;
-}
-
-function closeProfile() {
-  document.getElementById("profile").style.display = "none";
-}
-
-function logout() {
-  localStorage.clear();
-  window.location = "index.html";
-}
-
-// 📜 HISTORY LOGIC
 function saveHistory(id) {
   let h = JSON.parse(localStorage.getItem("history")) || [];
-  // Avoid duplicates
-  if(!h.includes(id)) {
-    h.unshift(id);
-    h = h.slice(0,5);
+  if(!h.includes(id)) { 
+    h.unshift(id); 
+    h = h.slice(0,5); 
     localStorage.setItem("history", JSON.stringify(h));
+    loadHistory();
   }
 }
 
-function updateHistoryUI() {
+function loadHistory() {
   let h = JSON.parse(localStorage.getItem("history")) || [];
   let list = document.getElementById("historyList");
   list.innerHTML = h.map(item => `<li>${item}</li>`).join("");
 }
 
-// Load history on start
-updateHistoryUI();
+// SCANNER & PROFILE HELPERS
+function startScanner() {
+  let scanner = new Html5Qrcode("reader");
+  scanner.start({ facingMode: "environment" }, { fps:10 }, txt => { 
+    scanner.stop(); 
+    search(txt); 
+  }).catch(err => alert("Camera Error: " + err));
+}
 
+function manualSearch() { 
+  let val = document.getElementById("manual").value;
+  if(val) search(val);
+}
+
+function showProfile() { 
+  document.getElementById("profile").style.display = "block";
+  document.getElementById("pname").innerText = "Name: " + user.name;
+  document.getElementById("pid").innerText = "ID: " + user.id;
+  document.getElementById("prole").innerText = "Role Level: " + user.role;
+  document.getElementById("pemail").innerText = "Email: " + user.email;
+}
+
+function closeProfile() { document.getElementById("profile").style.display = "none"; }
+function logout() { localStorage.clear(); window.location = "index.html"; }
+
+// Run on Start
+loadHistory();
 </script>
-
 </body>
 </html>
