@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZEN DNA Login</title>
+<title>ZEN Login</title>
 
 <style>
 body {
@@ -11,52 +10,28 @@ body {
   background:#eef2f3;
   display:flex;
   justify-content:center;
-  padding:20px;
+  align-items:center;
+  height:100vh;
 }
 
 .container {
   background:white;
   padding:25px;
   border-radius:15px;
-  width:100%;
-  max-width:400px;
+  width:300px;
   text-align:center;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
 
-.logo {
-  width:90px;
-}
-
-h2 { margin:10px 0 5px; }
-
-.sub {
-  font-size:12px;
-  color:#555;
-}
-
-input {
+input, button {
   width:100%;
   padding:12px;
   margin-top:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
 }
 
 button {
-  width:100%;
-  padding:12px;
-  margin-top:15px;
-  border:none;
-  border-radius:8px;
   background:#27ae60;
   color:white;
-  font-weight:bold;
-}
-
-#error {
-  color:red;
-  margin-top:10px;
+  border:none;
 }
 </style>
 </head>
@@ -64,61 +39,42 @@ button {
 <body>
 
 <div class="container">
+<h2>ZEN-DNA Login</h2>
 
-<img src="https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png" class="logo">
-
-<h2>Loyola College, Chennai</h2>
-<div class="sub">Department of Advanced Zoology & Biotechnology</div>
-<div class="sub">ZEN-DNA Expansion</div>
-<div class="sub">Zoology E-Learning Network</div>
-<div class="sub">Departmental Nurturing Academic</div>
-
-<input type="text" id="id" placeholder="Enter ID">
-<input type="password" id="pass" placeholder="Enter Password">
+<input id="id" placeholder="Enter ID">
+<input id="pass" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
 
-<div id="error"></div>
-
+<p id="msg"></p>
 </div>
 
 <script>
-
-const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec"; // same Apps Script
+const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
+const KEY = "ZEN_DNA_2026";
 
 function login() {
 
-  const id = document.getElementById("id").value;
-  const pass = document.getElementById("pass").value;
+  let id = document.getElementById("id").value;
+  let pass = document.getElementById("pass").value;
 
-  fetch(`${API}?action=login&id=${id}&password=${pass}`)
-    .then(res => res.json())
-    .then(res => {
+  fetch(`${API}?action=login&id=${id}&password=${pass}&key=${KEY}`)
+  .then(res => res.json())
+  .then(res => {
 
-      if (res.status === "success") {
+    if (res.status === "success") {
 
-        localStorage.setItem("user", JSON.stringify({
-          name: res.name,
-          role: res.role
-        }));
+      localStorage.setItem("user", JSON.stringify(res));
+      window.location = "scanner.html";
 
-        window.location = "scanner.html";
-      }
+    } else if (res.status === "not_approved") {
+      msg.innerText = "Not Approved";
+    } else {
+      msg.innerText = "Invalid Login";
+    }
 
-      else if (res.status === "not_approved") {
-        showError("Not Approved");
-      }
-
-      else {
-        showError("Invalid ID or Password");
-      }
-    });
+  });
 }
-
-function showError(msg) {
-  document.getElementById("error").innerText = msg;
-}
-
 </script>
 
 </body>
