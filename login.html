@@ -16,7 +16,6 @@
   
   body {
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    /* BACKGROUND IMAGE APPLIED HERE */
     background: linear-gradient(var(--bg-overlay), var(--bg-overlay)), 
                 url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
     background-size: cover;
@@ -61,7 +60,6 @@
   .logo-section img {
     height: 60px;
     width: auto;
-    /* REMOVES LOGO BACKGROUND FRINGE */
     mix-blend-mode: multiply;
     display: block;
   }
@@ -115,7 +113,7 @@
     color: white;
     border: none;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -123,11 +121,16 @@
     align-items: center;
     gap: 10px;
     transition: 0.2s;
+    letter-spacing: 0.5px;
   }
 
   button:active { transform: scale(0.98); }
+  button:disabled { background: #64748b; cursor: not-allowed; }
 
-  /* SPINNER ANIMATION */
+  #adminSelection { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+  .selection-btn { background: var(--secondary); margin-bottom: 10px; }
+  .dashboard-btn { background: #111827; }
+
   .spinner {
     display: none;
     width: 16px;
@@ -172,22 +175,31 @@
     Loyola College (Autonomous), Chennai - 34.
   </div>
 
-  <h2>MUSEUM DATABASE</h2>
-  <h4>ZOOLOGY - E-LEARNING NETWORK,<br>DEPARTMENT NURTURING ACADEMICS.</h4>
+  <div id="loginForm">
+    <h2>MUSEUM DATABASE</h2>
+    <h4>ZOOLOGY - E-LEARNING NETWORK,<br>DEPARTMENT NURTURING ACADEMICS.</h4>
 
-  <div class="input-group">
-    <input id="id" placeholder="User ID" autocomplete="username">
+    <div class="input-group">
+      <input id="id" placeholder="User ID" autocomplete="username">
+    </div>
+
+    <div class="input-group">
+      <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+      <span class="show-pass" onclick="togglePass()">SHOW</span>
+    </div>
+
+    <button id="loginBtn" onclick="login()">
+      <span id="btnText">LOGIN</span>
+      <div class="spinner" id="loader"></div>
+    </button>
   </div>
 
-  <div class="input-group">
-    <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
-    <span class="show-pass" onclick="togglePass()">SHOW</span>
+  <div id="adminSelection">
+    <h2 style="border:none;">WELCOME, <span id="adminName"></span></h2>
+    <p style="font-size: 11px; margin-bottom: 20px;">Please select your destination:</p>
+    <button class="selection-btn" onclick="goTo('scanner.html')">OPEN SCANNER</button>
+    <button class="selection-btn dashboard-btn" onclick="goTo('admin.html')">OPEN DASHBOARD</button>
   </div>
-
-  <button id="loginBtn" onclick="login()">
-    <span id="btnText">LOGIN</span>
-    <div class="spinner" id="loader"></div>
-  </button>
 
   <p id="msg"></p>
 
@@ -216,26 +228,38 @@ function login() {
   const msg = document.getElementById("msg");
   const loader = document.getElementById("loader");
   const btnText = document.getElementById("btnText");
+  const loginBtn = document.getElementById("loginBtn");
 
   if(!id || !pass) {
     msg.innerText = "Error: ID and Password required";
     return;
   }
 
-  // Loading State UI
+  // UPDATED: Show Verifying Status
   loader.style.display = "block";
-  btnText.style.opacity = "0.6";
+  btnText.innerText = "VERIFYING CREDENTIALS...";
+  loginBtn.disabled = true;
   msg.innerText = "";
 
   fetch(`${API}?action=login&id=${id}&password=${pass}&key=${KEY}`)
   .then(res => res.json())
   .then(res => {
+    // Reset Button State
     loader.style.display = "none";
-    btnText.style.opacity = "1";
+    btnText.innerText = "LOGIN";
+    loginBtn.disabled = false;
 
     if (res.status === "success") {
       localStorage.setItem("user", JSON.stringify(res));
-      window.location = "scanner.html";
+      
+      if (parseInt(res.role) === 2) {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("adminSelection").style.display = "block";
+        document.getElementById("adminName").innerText = res.name.split(' ')[0].toUpperCase();
+      } else {
+        window.location = "scanner.html";
+      }
+      
     } else if (res.status === "not_approved") {
       msg.innerText = "Access Denied: Pending Approval, Contact admin: zendna1994@gmail.com";
     } else {
@@ -244,9 +268,14 @@ function login() {
   })
   .catch(err => {
     loader.style.display = "none";
-    btnText.style.opacity = "1";
+    btnText.innerText = "LOGIN";
+    loginBtn.disabled = false;
     msg.innerText = "Server Error. Please try again.";
   });
+}
+
+function goTo(page) {
+  window.location = page;
 }
 </script>
 
