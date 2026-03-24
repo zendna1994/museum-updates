@@ -1,57 +1,30 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>ZEN Scanner</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 
 <style>
-body {
-  font-family: Arial;
-  background:#eef2f3;
-  display:flex;
-  justify-content:center;
-  padding:20px;
-}
+body { font-family: Arial; background:#eef2f3; text-align:center; }
 
 .container {
   background:white;
   padding:20px;
   border-radius:15px;
-  width:100%;
-  max-width:420px;
-  text-align:center;
-  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  max-width:400px;
+  margin:auto;
 }
 
-.logo {
-  width:80px;
-}
+#result { display:none; margin-top:20px; }
 
-.sub {
-  font-size:12px;
-  color:#555;
-}
+img { width:100%; border-radius:10px; }
 
 button, input {
   width:100%;
   padding:10px;
   margin-top:10px;
-}
-
-#reader { margin-top:10px; }
-
-#result {
-  margin-top:15px;
-  display:none;
-}
-
-img {
-  width:100%;
-  border-radius:10px;
 }
 </style>
 </head>
@@ -60,95 +33,173 @@ img {
 
 <div class="container">
 
-<img src="https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png" class="logo">
-
-<h3>Loyola College, Chennai</h3>
-<div class="sub">Advanced Zoology & Biotechnology</div>
-<div class="sub">ZEN-DNA | Zoology E-Learning Network</div>
+<h3>ZEN DNA Scanner</h3>
 
 <button onclick="startScanner()">Scan QR</button>
-
 <div id="reader"></div>
 
-<input type="text" id="manual" placeholder="Enter ID manually">
-<button onclick="manual()">Search</button>
+<input id="manual" placeholder="Enter ID">
+<button onclick="manualSearch()">Search</button>
+
+<button onclick="showProfile()">👤 Profile</button>
 
 <div id="result">
   <img id="img">
   <h3 id="sci"></h3>
   <p id="com"></p>
 
-  <p><b>ID:</b> <span id="id"></span></p>
+  <p><b>ID:</b> <span id="uid"></span></p>
   <p><b>Phylum:</b> <span id="phy"></span></p>
   <p><b>Class:</b> <span id="cls"></span></p>
 
-  <a id="pdf" target="_blank">Open PDF</a>
+  <iframe id="pdf" width="100%" height="300"></iframe>
 </div>
 
+</div>
+
+<!-- PROFILE POPUP -->
+<div id="profile" style="display:none; position:fixed; top:20%; left:10%; width:80%; background:white; padding:20px; border-radius:10px;">
+  <h3>User Profile</h3>
+  <p id="pname"></p>
+  <p id="pid"></p>
+  <p id="prole"></p>
+  <p id="pemail"></p>
+
+  <button onclick="logout()">Logout</button>
+  <button onclick="closeProfile()">Close</button>
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
+const API = "YOUR_SCRIPT_URL";
+const KEY = "ZEN_DNA_2026";
 
-// SEARCH
-function search(id) {
-
-  fetch(`${API}?action=scan&id=${id}`)
-    .then(res => res.json())
-    .then(res => {
-
-      if (res.status !== "success") {
-        alert("Invalid ID");
-        return;
-      }
-
-      const s = res.data;
-
-      document.getElementById("result").style.display = "block";
-
-      document.getElementById("id").innerText = s.Unique_ID;
-      document.getElementById("sci").innerText = s.Scientific_Name;
-      document.getElementById("com").innerText = s.Common_Name;
-      document.getElementById("phy").innerText = s.Phylum;
-      document.getElementById("cls").innerText = s.Class;
-
-      document.getElementById("img").src = formatImg(s.Image);
-      document.getElementById("pdf").href = s.Pdf || "#";
-    });
+// 🔐 LOGIN CHECK
+let user = JSON.parse(localStorage.getItem("user"));
+if (!user) {
+  alert("Login required");
+  window.location = "index.html";
 }
 
-// MANUAL
-function manual() {
+// 📍 LOCATION CHECK (500m)
+navigator.geolocation.getCurrentPosition(pos => {
+  let d = distance(
+    pos.coords.latitude,
+    pos.coords.longitude,
+    13.0632,
+    80.234
+  );
+
+  if (d > 0.5) {
+    alert("Outside allowed area");
+    logout();
+  }
+});
+
+// 📏 DISTANCE FUNCTION
+function distance(lat1, lon1, lat2, lon2) {
+  let R = 6371;
+  let dLat = (lat2-lat1)*Math.PI/180;
+  let dLon = (lon2-lon1)*Math.PI/180;
+  let a = Math.sin(dLat/2)**2 +
+          Math.cos(lat1*Math.PI/180) *
+          Math.cos(lat2*Math.PI/180) *
+          Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// 🔍 SEARCH
+function search(id) {
+
+  fetch(`${API}?action=scan&id=${id}&role=${user.role}&key=${KEY}`)
+  .then(res => res.json())
+  .then(res => {
+
+    if (res.status === "restricted") {
+      alert("Access Denied");
+      return;
+    }
+
+    if (res.status !== "success") {
+      alert("Not Found");
+      return;
+    }
+
+    let s = res.data;
+
+    document.getElementById("result").style.display = "block";
+
+    uid.innerText = s.Unique_ID;
+    sci.innerText = s.Scientific_Name;
+    com.innerText = s.Common_Name;
+    phy.innerText = s.Phylum;
+    cls.innerText = s.Class;
+
+    img.src = formatImg(s.Image);
+    pdf.src = formatPdf(s.Pdf);
+
+    saveHistory(s.Unique_ID);
+
+  });
+}
+
+// 📷 QR
+function startScanner() {
+  let scanner = new Html5Qrcode("reader");
+
+  scanner.start({ facingMode: "environment" }, { fps:10 }, txt => {
+    scanner.stop();
+    search(txt);
+  });
+}
+
+function manualSearch() {
   search(document.getElementById("manual").value);
 }
 
-// QR
-let scanner;
-
-function startScanner() {
-  scanner = new Html5Qrcode("reader");
-
-  scanner.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: 250 },
-    text => {
-      scanner.stop();
-      search(text);
-    }
-  );
+// 📄 PDF
+function formatPdf(url) {
+  let id = url.split("/d/")[1].split("/")[0];
+  return "https://drive.google.com/file/d/"+id+"/preview";
 }
 
-// IMAGE FIX
+// 🖼 IMAGE
 function formatImg(url) {
-  if (!url) return "";
-  try {
-    let id = url.split("/d/")[1].split("/")[0];
-    return "https://drive.google.com/thumbnail?id=" + id;
-  } catch {
-    return url;
-  }
+  let id = url.split("/d/")[1].split("/")[0];
+  return "https://drive.google.com/thumbnail?id="+id;
 }
+
+// 👤 PROFILE
+function showProfile() {
+  profile.style.display = "block";
+  pname.innerText = user.name;
+  pid.innerText = user.id;
+  prole.innerText = user.role;
+  pemail.innerText = user.email;
+}
+
+function closeProfile() {
+  profile.style.display = "none";
+}
+
+// 🚪 LOGOUT
+function logout() {
+  localStorage.clear();
+  window.location = "index.html";
+}
+
+// 📜 HISTORY
+function saveHistory(id) {
+  let h = JSON.parse(localStorage.getItem("history")) || [];
+  h.unshift(id);
+  h = h.slice(0,5);
+  localStorage.setItem("history", JSON.stringify(h));
+}
+
+// 🔄 AUTO REFRESH DATA
+setInterval(() => {
+  console.log("refreshing...");
+}, 15000);
 
 </script>
 
