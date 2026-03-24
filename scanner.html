@@ -19,6 +19,15 @@ body { font-family: Arial; background:#eef2f3; text-align:center; }
 
 #result { display:none; margin-top:20px; }
 
+/* Styling for your new History Box */
+#historyBox { 
+  margin-top:20px; 
+  border-top: 1px solid #ddd; 
+  padding-top: 10px; 
+  text-align: left;
+}
+#historyList { padding-left: 20px; color: #555; }
+
 img { width:100%; border-radius:10px; }
 
 button, input {
@@ -53,12 +62,16 @@ button, input {
   <p><b>Class:</b> <span id="cls"></span></p>
 
   <iframe id="pdf" width="100%" height="300"></iframe>
+
+  <div id="historyBox">
+    <h4>Recent Scans</h4>
+    <ul id="historyList"></ul>
+  </div>
 </div>
 
 </div>
 
-<!-- PROFILE POPUP -->
-<div id="profile" style="display:none; position:fixed; top:20%; left:10%; width:80%; background:white; padding:20px; border-radius:10px;">
+<div id="profile" style="display:none; position:fixed; top:20%; left:10%; width:80%; background:white; padding:20px; border-radius:10px; z-index:1000; border: 1px solid #ccc;">
   <h3>User Profile</h3>
   <p id="pname"></p>
   <p id="pid"></p>
@@ -81,72 +94,50 @@ if (!user) {
   window.location = "index.html";
 }
 
-// 📍 LOCATION CHECK (500m)
+// 📍 LOCATION CHECK
 navigator.geolocation.getCurrentPosition(pos => {
-  let d = distance(
-    pos.coords.latitude,
-    pos.coords.longitude,
-    13.0632,
-    80.234
-  );
-
+  let d = distance(pos.coords.latitude, pos.coords.longitude, 13.0632, 80.234);
   if (d > 0.5) {
     alert("Outside allowed area");
     logout();
   }
 });
 
-// 📏 DISTANCE FUNCTION
 function distance(lat1, lon1, lat2, lon2) {
   let R = 6371;
   let dLat = (lat2-lat1)*Math.PI/180;
   let dLon = (lon2-lon1)*Math.PI/180;
-  let a = Math.sin(dLat/2)**2 +
-          Math.cos(lat1*Math.PI/180) *
-          Math.cos(lat2*Math.PI/180) *
-          Math.sin(dLon/2)**2;
+  let a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
 // 🔍 SEARCH
 function search(id) {
-
   fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
   .then(res => res.json())
   .then(res => {
-
-    if (res.status === "restricted") {
-      alert("Access Denied");
-      return;
-    }
-
-    if (res.status !== "success") {
-      alert("Not Found");
-      return;
-    }
+    if (res.status === "restricted") { alert("Access Denied"); return; }
+    if (res.status !== "success") { alert("Not Found"); return; }
 
     let s = res.data;
-
     document.getElementById("result").style.display = "block";
 
-    uid.innerText = s.Unique_ID;
-    sci.innerText = s.Scientific_Name;
-    com.innerText = s.Common_Name;
-    phy.innerText = s.Phylum;
-    cls.innerText = s.Class;
+    document.getElementById("uid").innerText = s.Unique_ID;
+    document.getElementById("sci").innerText = s.Scientific_Name;
+    document.getElementById("com").innerText = s.Common_Name;
+    document.getElementById("phy").innerText = s.Phylum;
+    document.getElementById("cls").innerText = s.Class;
 
-    img.src = formatImg(s.Image);
-    pdf.src = formatPdf(s.Pdf);
+    document.getElementById("img").src = formatImg(s.Image);
+    document.getElementById("pdf").src = formatPdf(s.Pdf);
 
     saveHistory(s.Unique_ID);
-
+    updateHistoryUI(); // Refresh the list visual
   });
 }
 
-// 📷 QR
 function startScanner() {
   let scanner = new Html5Qrcode("reader");
-
   scanner.start({ facingMode: "environment" }, { fps:10 }, txt => {
     scanner.stop();
     search(txt);
@@ -157,49 +148,52 @@ function manualSearch() {
   search(document.getElementById("manual").value);
 }
 
-// 📄 PDF
 function formatPdf(url) {
   let id = url.split("/d/")[1].split("/")[0];
   return "https://drive.google.com/file/d/"+id+"/preview";
 }
 
-// 🖼 IMAGE
 function formatImg(url) {
   let id = url.split("/d/")[1].split("/")[0];
   return "https://drive.google.com/thumbnail?id="+id;
 }
 
-// 👤 PROFILE
 function showProfile() {
-  profile.style.display = "block";
-  pname.innerText = user.name;
-  pid.innerText = user.id;
-  prole.innerText = user.role;
-  pemail.innerText = user.email;
+  document.getElementById("profile").style.display = "block";
+  document.getElementById("pname").innerText = user.name;
+  document.getElementById("pid").innerText = user.id;
+  document.getElementById("prole").innerText = user.role;
+  document.getElementById("pemail").innerText = user.email;
 }
 
 function closeProfile() {
-  profile.style.display = "none";
+  document.getElementById("profile").style.display = "none";
 }
 
-// 🚪 LOGOUT
 function logout() {
   localStorage.clear();
   window.location = "index.html";
 }
 
-// 📜 HISTORY
+// 📜 HISTORY LOGIC
 function saveHistory(id) {
   let h = JSON.parse(localStorage.getItem("history")) || [];
-  h.unshift(id);
-  h = h.slice(0,5);
-  localStorage.setItem("history", JSON.stringify(h));
+  // Avoid duplicates
+  if(!h.includes(id)) {
+    h.unshift(id);
+    h = h.slice(0,5);
+    localStorage.setItem("history", JSON.stringify(h));
+  }
 }
 
-// 🔄 AUTO REFRESH DATA
-setInterval(() => {
-  console.log("refreshing...");
-}, 15000);
+function updateHistoryUI() {
+  let h = JSON.parse(localStorage.getItem("history")) || [];
+  let list = document.getElementById("historyList");
+  list.innerHTML = h.map(item => `<li>${item}</li>`).join("");
+}
+
+// Load history on start
+updateHistoryUI();
 
 </script>
 
