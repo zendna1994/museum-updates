@@ -111,7 +111,7 @@ function distance(lat1, lon1, lat2, lon2) {
 // 🔍 SEARCH
 function search(id) {
 
-  fetch(`${API}?action=scan&id=${id}&role=${user.role}&key=${KEY}`)
+  fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
   .then(res => res.json())
   .then(res => {
 
