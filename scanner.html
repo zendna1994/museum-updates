@@ -141,7 +141,7 @@ let user = JSON.parse(localStorage.getItem("user"));
 if(!user) window.location = "login.html";
 
 // Initial Setup
-if(user.role >= 2){
+if(user.role >= 1){
   document.getElementById('adminTabs').style.display = "block";
   openTab('dashboard');
   loadFullData();
