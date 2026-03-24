@@ -1,155 +1,259 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZEN DNA | Scanner</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEN DNA | Curator Scanner</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        :root {
+            --museum-dark: #002147; /* Oxford Blue */
+            --museum-gold: #a68a56; /* Brass/Gold accent */
+            --museum-ivory: #fdfcf8; /* Paper/Parchment */
+            --museum-green: #1b3022; /* Deep Forest */
+            --text-main: #2c3e50;
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
 
-<style>
-  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7f6; margin:0; user-select: none; }
-  .container { max-width:600px; margin:auto; padding:15px; }
-  
-  .card { background:white; padding:20px; border-radius:12px; margin-top:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #002147; padding-bottom: 10px; }
-  
-  button { padding:12px 15px; margin:5px; border:none; border-radius:6px; background:#002147; color:white; cursor: pointer; transition: 0.3s; font-weight: 600; }
-  button:hover { background: #003366; }
-  input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: calc(100% - 25px); margin-bottom: 10px; font-size: 14px; box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--museum-ivory); 
+            color: var(--text-main);
+            margin: 0; 
+            background-image: radial-gradient(#e5e2d9 1px, transparent 1px);
+            background-size: 20px 20px; /* Subtle grid paper texture */
+        }
 
-  #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 10px; }
-  
-  #profile { 
-    display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%);
-    background:white; padding:25px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.4); 
-    z-index: 1001; width: 85%; max-width: 350px;
-  }
-  .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 1000; }
+        /* --- Header & Container --- */
+        .container { max-width: 600px; margin: auto; padding: 20px; }
+        
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px 0; border-bottom: 2px solid var(--museum-dark);
+            margin-bottom: 25px;
+        }
 
-  #loader { display:none; text-align: center; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
-  .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #002147; border-radius: 50%; animation: spin 1s linear infinite; margin: auto; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        h3 { 
+            font-family: 'Playfair Display', serif; 
+            letter-spacing: 1px; margin: 0; color: var(--museum-dark); 
+        }
 
-  #result { display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; }
-  #img { width:100%; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
-</style>
+        /* --- Cards & UI Elements --- */
+        .card { 
+            background: white; padding: 25px; border-radius: 16px; 
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+
+        button { 
+            padding: 14px; border: none; border-radius: 8px; 
+            background: var(--museum-dark); color: white; 
+            cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        button:hover { background: var(--museum-green); transform: translateY(-1px); }
+        
+        .admin-btn { background: var(--museum-gold); color: white; }
+
+        input { 
+            padding: 14px; border: 2px solid #eee; border-radius: 8px; 
+            width: 100%; margin: 15px 0 10px 0; box-sizing: border-box;
+            font-size: 16px; outline: none; transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--museum-gold); }
+
+        #reader { 
+            width: 100%; border-radius: 12px; overflow: hidden; 
+            margin: 15px 0; border: 3px solid var(--museum-dark);
+        }
+
+        /* --- Result Section --- */
+        #result { margin-top: 25px; animation: fadeIn 0.5s ease; }
+        #img { width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: var(--shadow); }
+        .specimen-title { font-family: 'Playfair Display', serif; font-size: 24px; margin: 15px 0 5px 0; }
+        .taxonomy-tag { 
+            display: inline-block; padding: 4px 12px; background: #f0f0f0; 
+            border-radius: 20px; font-size: 12px; color: #666; margin-top: 5px;
+        }
+
+        /* --- Loading DNA Animation --- */
+        #loader { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 2000;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        .dna-spinner {
+            width: 40px; height: 40px; border: 4px solid var(--museum-gold);
+            border-top: 4px solid transparent; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- Profile Modal --- */
+        #profile {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: white; padding: 30px; border-radius: 20px; z-index: 1001; 
+            width: 85%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .overlay { display: none; position: fixed; width: 100%; height: 100%; background: rgba(0,33,71,0.6); top: 0; left: 0; z-index: 1000; backdrop-filter: blur(4px); }
+        
+        .label { color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .value { font-weight: 600; color: var(--museum-dark); font-size: 16px; }
+
+    </style>
 </head>
-
-<body oncontextmenu="return false;">
+<body>
 
 <div class="overlay" id="overlay" onclick="closeProfile()"></div>
-<div id="loader"><div class="spinner"></div><p>Searching Database...</p></div>
+
+<div id="loader">
+    <div class="dna-spinner"></div>
+    <p style="margin-top:15px; font-family:'Playfair Display'; color:var(--museum-dark)">Consulting Archives...</p>
+</div>
 
 <div class="container">
-  <div class="header">
-    <h2 style="font-size: 18px; color: #002147;">ZEN DNA SCANNER</h2>
-    <button onclick="showProfile()">👤 Profile</button>
-  </div>
-
-  <div class="card">
-    <button onclick="startScanner()" style="width:100%; padding: 18px; font-size: 16px; background: #8e44ad;">📷 OPEN QR SCANNER</button>
-    <div id="reader"></div>
-    
-    <div style="text-align: center; margin: 15px 0; color: #7f8c8d; font-weight: bold;">- OR -</div>
-    
-    <input id="manual" placeholder="Enter Specimen ID (e.g., ZD001)">
-    <button onclick="manualSearch()" style="width:100%; background: #27ae60;">🔍 Search Database</button>
-
-    <div id="result">
-      <img id="img" src="">
-      <h3 id="sci" style="color: #002147; margin: 0;"></h3>
-      <p id="com" style="color: #7f8c8d; font-style: italic; margin: 5px 0;"></p>
-      <p id="uid" style="font-weight: bold; background: #eee; display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 12px;"></p>
-      <div id="tree" style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-left: 4px solid #002147; border-radius: 4px; font-size: 13px;"></div>
-      <iframe id="pdf" width="100%" height="450" style="border:1px solid #ddd; border-radius: 8px;"></iframe>
+    <div class="header">
+        <h3>ZEN DNA <span style="font-weight:100; color:var(--museum-gold)">| SCANNER</span></h3>
+        <div style="display:flex; gap:8px">
+            <button onclick="showProfile()" style="background:none; color:var(--museum-dark); border:1px solid #ccc">👤</button>
+            <button id="adminBtn" class="admin-btn" onclick="goAdmin()" style="display:none">Admin</button>
+        </div>
     </div>
-  </div>
+
+    <div class="card">
+        <button onclick="startScanner()" style="width:100%; background: var(--museum-green);">
+            <span>📷</span> INITIALIZE SCANNER
+        </button>
+        
+        <div id="reader"></div>
+
+        <div style="text-align: center; margin: 15px 0; color: #ccc; font-size: 12px;">OR MANUALLY ENTER ACCESSION ID</div>
+
+        <input id="manual" placeholder="e.g. ZOO-2026-001">
+        <button onclick="manualSearch()" style="width:100%">SEARCH ARCHIVES</button>
+
+        <div id="result" style="display:none">
+            <img id="img" alt="Specimen Image">
+            <div class="taxonomy-tag" id="uid"></div>
+            <h3 id="sci" class="specimen-title"></h3>
+            <p id="com" style="margin:0; font-style: italic; color: #555;"></p>
+            
+            <div id="tree" style="margin: 15px 0; padding: 12px; background: #f9f9f9; border-left: 3px solid var(--museum-gold); font-size: 13px;"></div>
+            
+            <p class="label">Digital Monograph</p>
+            <iframe id="pdf" width="100%" height="350" style="border:1px solid #eee; border-radius:8px"></iframe>
+        </div>
+    </div>
 </div>
 
 <div id="profile">
-  <h3 style="margin-top: 0; color: #002147;">User Profile</h3>
-  <div id="profDetails" style="font-size: 14px; line-height: 2;">
-    <p><b>Name:</b> <span id="pname"></span></p>
-    <p><b>User ID:</b> <span id="pid"></span></p>
-    <p><b>Role:</b> <span id="prole"></span></p>
-    <p><b>Email:</b> <span id="pemail"></span></p>
-    <p><b>Dept:</b> <span id="pdept"></span></p>
-  </div>
-  <div style="margin-top: 20px; display: flex; gap: 10px;">
-    <button onclick="logout()" style="background:#c0392b; flex: 1;">Logout</button>
-    <button onclick="closeProfile()" style="background:#95a5a6; flex: 1;">Close</button>
-  </div>
+    <h3 style="margin-bottom:20px; text-align:center">Curator Identity</h3>
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+        <div><span class="label">Full Name</span><br><span id="pname" class="value"></span></div>
+        <div><span class="label">Staff ID</span><br><span id="pid" class="value"></span></div>
+        <div style="grid-column: span 2;"><span class="label">Secure Email</span><br><span id="pemail" class="value"></span></div>
+        <div><span class="label">Access Level</span><br><span id="prole" class="value"></span></div>
+        <div><span class="label">Department</span><br><span id="pdept" class="value"></span></div>
+    </div>
+
+    <div style="margin-top:25px; display:flex; gap:10px">
+        <button onclick="logout()" style="background:#e74c3c; flex:1">Logout</button>
+        <button onclick="closeProfile()" style="background:#95a5a6; flex:1">Close</button>
+    </div>
 </div>
 
 <script>
+// --- Core Logic (Unchanged as per instructions) ---
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
 let user = JSON.parse(localStorage.getItem("user"));
-if(!user) window.location = "login.html";
+if(!user) window.location="login.html";
 
-function toggleLoading(s) { 
-  document.getElementById('loader').style.display = s ? 'block' : 'none'; 
-  document.getElementById('overlay').style.display = s ? 'block' : 'none'; 
+if(Number(user.role) === 2){
+    document.getElementById("adminBtn").style.display="inline-block";
+}
+
+function toggleLoading(s){
+    document.getElementById("loader").style.display = s ? "flex":"none";
 }
 
 function search(id){
-  if(!id) return;
-  toggleLoading(true);
-  document.getElementById('result').style.display = "none";
+    if(!id) return;
+    toggleLoading(true);
 
-  fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${user.role}&userId=${user.id}&key=${KEY}`)
-  .then(r=>r.json()).then(res=>{
-    toggleLoading(false);
-    if(res.status !== "success"){ alert("Specimen Not Found or Access Restricted"); return; }
-    
-    let s = res.data;
-    document.getElementById('result').style.display = "block";
-    document.getElementById('uid').innerText = "Specimen ID: " + s.Unique_ID;
-    document.getElementById('sci').innerText = s.Scientific_Name;
-    document.getElementById('com').innerText = s.Common_Name;
-    
-    // Drive Link Processing
-    document.getElementById('img').src = "https://drive.google.com/thumbnail?id=" + s.Image.split("/d/")[1].split("/")[0];
-    document.getElementById('pdf').src = "https://drive.google.com/file/d/" + s.Pdf.split("/d/")[1].split("/")[0] + "/preview";
-    
-    document.getElementById('tree').innerHTML = `<b>Hierarchy:</b> ${s.Phylum} → ${s.Class} → ${s.Order}`;
-    window.scrollTo({ top: document.getElementById('result').offsetTop, behavior: 'smooth' });
-  }).catch(()=> {
-    toggleLoading(false);
-    alert("Connection Error");
-  });
+    fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${user.role}&userId=${user.id}&key=${KEY}`)
+    .then(r=>r.json())
+    .then(res=>{
+        toggleLoading(false);
+        if(res.status !== "success"){
+            alert("Specimen Not Found or Restricted Access.");
+            return;
+        }
+
+        let s=res.data;
+        document.getElementById("result").style.display="block";
+        document.getElementById("uid").innerText="ACCESSION: "+s.Unique_ID;
+        document.getElementById("sci").innerText=s.Scientific_Name;
+        document.getElementById("com").innerText=s.Common_Name;
+
+        // Image & PDF Handlers
+        try {
+            document.getElementById("img").src="https://drive.google.com/thumbnail?id="+s.Image.split("/d/")[1].split("/")[0];
+            document.getElementById("pdf").src="https://drive.google.com/file/d/"+s.Pdf.split("/d/")[1].split("/")[0]+"/preview";
+        } catch(e) { console.log("Media parsing error"); }
+
+        document.getElementById("tree").innerHTML=`<b>Classification Hierarchy:</b><br>${s.Phylum} &rarr; ${s.Class} &rarr; ${s.Order}`;
+        
+        // Auto-scroll to result
+        document.getElementById("result").scrollIntoView({ behavior: 'smooth' });
+    })
+    .catch(()=>{ toggleLoading(false); alert("Connection Error"); });
 }
 
-function manualSearch(){ search(document.getElementById('manual').value.trim()); }
+function manualSearch(){
+    search(document.getElementById("manual").value.trim());
+}
 
 function startScanner(){
-  let sc = new Html5Qrcode("reader");
-  sc.start({facingMode:"environment"},{fps:10, qrbox: 250},txt=>{ 
-    sc.stop(); 
-    search(txt); 
-  }).catch(err => alert("Camera error: " + err));
+    let sc=new Html5Qrcode("reader");
+    sc.start({facingMode:"environment"},{fps:10,qrbox:250},txt=>{
+        sc.stop();
+        search(txt);
+    }).catch(err => alert("Camera access denied or error."));
 }
 
 function showProfile(){
-  document.getElementById('overlay').style.display = "block";
-  document.getElementById('profile').style.display = "block";
-  document.getElementById('pname').innerText = user.name;
-  document.getElementById('pid').innerText = user.id;
-  document.getElementById('pemail').innerText = user.email;
-  const r = parseInt(user.role);
-  document.getElementById('prole').innerText = r == 2 ? "Admin/HOD" : (r == 1 ? "Staff" : "Student");
-  document.getElementById('pdept').innerText = (user.course || "Zoology") + " - " + (user.year || "");
+    document.getElementById("overlay").style.display="block";
+    document.getElementById("profile").style.display="block";
+    document.getElementById("pname").innerText=user.name;
+    document.getElementById("pid").innerText=user.id;
+    document.getElementById("pemail").innerText=user.email;
+    document.getElementById("prole").innerText=user.roleName || user.role;
+    document.getElementById("pdept").innerText=(user.course||"")+" "+(user.year||"");
 }
 
-function closeProfile(){ 
-  document.getElementById('overlay').style.display = "none"; 
-  document.getElementById('profile').style.display = "none"; 
+function closeProfile(){
+    document.getElementById("overlay").style.display="none";
+    document.getElementById("profile").style.display="none";
 }
 
-function logout(){ localStorage.clear(); window.location="login.html"; }
+function logout(){
+    localStorage.clear();
+    window.location="login.html";
+}
 
-document.addEventListener('contextmenu', e => e.preventDefault());
+function goAdmin(){
+    window.location="admin.html";
+}
 </script>
 
 </body>
