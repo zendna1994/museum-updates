@@ -78,7 +78,7 @@ const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4
 const KEY = "ZEN_DNA_2026";
 
 let user = JSON.parse(localStorage.getItem("user"));
-if (!user) { window.location = "index.html"; }
+if (!user) { window.location = "login.html"; }
 
 // AUTO LOAD ADMIN IF ROLE IS 2 (Admin/HOD)
 if (user.role == 2) {
@@ -166,7 +166,7 @@ function showProfile() {
 }
 
 function closeProfile() { document.getElementById("profile").style.display = "none"; }
-function logout() { localStorage.clear(); window.location = "index.html"; }
+function logout() { localStorage.clear(); window.location = "login.html"; }
 
 // Run on Start
 loadHistory();
