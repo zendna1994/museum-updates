@@ -2,30 +2,22 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ZEN DNA System</title>
+<title>ZEN DNA | Scanner</title>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7f6; margin:0; user-select: none; }
-  .container { max-width:1000px; margin:auto; padding:15px; }
+  .container { max-width:600px; margin:auto; padding:15px; }
   
   .card { background:white; padding:20px; border-radius:12px; margin-top:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
   .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #002147; padding-bottom: 10px; }
   
-  .table-wrapper { overflow-x: auto; max-height: 400px; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; }
-  table { width:100%; border-collapse:collapse; background: white; }
-  td, th { border:1px solid #eee; padding:12px; font-size:11px; text-align: left; }
-  th { background: #002147; color: white; position: sticky; top: 0; z-index: 10; }
-  tr:nth-child(even) { background: #fafafa; }
-
-  button { padding:10px 15px; margin:5px; border:none; border-radius:6px; background:#002147; color:white; cursor: pointer; transition: 0.3s; font-weight: 600; }
+  button { padding:12px 15px; margin:5px; border:none; border-radius:6px; background:#002147; color:white; cursor: pointer; transition: 0.3s; font-weight: 600; }
   button:hover { background: #003366; }
-  input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: calc(100% - 25px); margin-bottom: 10px; font-size: 14px; }
+  input { padding: 12px; border: 1px solid #ddd; border-radius: 8px; width: calc(100% - 25px); margin-bottom: 10px; font-size: 14px; box-sizing: border-box; }
 
-  .tab { display:none; }
-  .active { display:block; }
+  #reader { width: 100%; border-radius: 8px; overflow: hidden; background: #000; margin-bottom: 10px; }
   
   #profile { 
     display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%);
@@ -38,77 +30,38 @@
   .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #002147; border-radius: 50%; animation: spin 1s linear infinite; margin: auto; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-  .stat-card { background: #002147; color: white; padding: 12px; border-radius: 8px; text-align: center; }
-  .stat-card span { font-size: 20px; font-weight: bold; }
-  .report-card { border-left: 5px solid #2ecc71; padding: 12px; background: #ebf9f1; margin-top: 10px; border-radius: 5px; font-size: 13px; }
+  #result { display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px; }
+  #img { width:100%; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd; }
 </style>
 </head>
 
 <body oncontextmenu="return false;">
 
 <div class="overlay" id="overlay" onclick="closeProfile()"></div>
-<div id="loader"><div class="spinner"></div><p>Syncing Database...</p></div>
+<div id="loader"><div class="spinner"></div><p>Searching Database...</p></div>
 
 <div class="container">
   <div class="header">
-    <h2 style="font-size: 18px; color: #002147;">ZEN DNA SYSTEM</h2>
+    <h2 style="font-size: 18px; color: #002147;">ZEN DNA SCANNER</h2>
     <button onclick="showProfile()">👤 Profile</button>
   </div>
 
-  <div id="navTabs" style="margin-top: 15px; display: flex;">
-    <button id="btnDash" onclick="openTab('dashboard')" style="display:none; flex: 1; background: #2c3e50;">📊 Dashboard</button>
-    <button id="btnData" onclick="openTab('database')" style="flex: 1; background: #27ae60;">🧬 Database</button>
-    <button id="btnRefresh" onclick="loadFullData()" style="display:none; background: #f39c12;">🔄</button>
-  </div>
+  <div class="card">
+    <button onclick="startScanner()" style="width:100%; padding: 18px; font-size: 16px; background: #8e44ad;">📷 OPEN QR SCANNER</button>
+    <div id="reader"></div>
+    
+    <div style="text-align: center; margin: 15px 0; color: #7f8c8d; font-weight: bold;">- OR -</div>
+    
+    <input id="manual" placeholder="Enter Specimen ID (e.g., ZD001)">
+    <button onclick="manualSearch()" style="width:100%; background: #27ae60;">🔍 Search Database</button>
 
-  <div id="dashboard" class="tab">
-    <div class="card">
-      <div class="stats-grid">
-        <div class="stat-card"><h4>Users</h4><span id="u">0</span></div>
-        <div class="stat-card" style="background:#27ae60"><h4>Specimens</h4><span id="s">0</span></div>
-        <div class="stat-card" style="background:#c0392b"><h4>Total Scans</h4><span id="l">0</span></div>
-      </div>
-      <canvas id="chart" height="120"></canvas>
-    </div>
-
-    <div class="card">
-      <h3>Search System Records</h3>
-      <input type="text" onkeyup="filterTable('userTable', 4)" placeholder="🔎 Search User Names...">
-      <div class="table-wrapper"><table id="userTable"></table></div>
-      
-      <input type="text" style="margin-top:20px;" onkeyup="filterTable('logTable', 2)" placeholder="🔎 Search Logs by Student ID...">
-      <div class="table-wrapper"><table id="logTable"></table></div>
-    </div>
-
-    <div class="card">
-      <h3>Specimen Inventory</h3>
-      <input type="text" onkeyup="filterTable('specimenTable', 1)" placeholder="🔎 Search Scientific Names...">
-      <div class="table-wrapper"><table id="specimenTable"></table></div>
-    </div>
-
-    <div class="card">
-      <h3>System Insights</h3>
-      <div id="mostScanned" class="report-card">📈 Most scanned: Tracking activity...</div>
-    </div>
-  </div>
-
-  <div id="database" class="tab">
-    <div class="card">
-      <button onclick="startScanner()" style="width:100%; padding: 18px; font-size: 16px; background: #8e44ad;">📷 OPEN QR SCANNER</button>
-      <div id="reader"></div>
-      <div style="text-align: center; margin: 15px 0; color: #7f8c8d; font-weight: bold;">- OR -</div>
-      <input id="manual" placeholder="Enter Specimen ID (e.g., ZD001)">
-      <button onclick="manualSearch()" style="width:100%">🔍 Search Database</button>
-
-      <div id="result" style="display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px;">
-        <img id="img" style="width:100%; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;">
-        <h3 id="sci" style="color: #002147; margin: 0;"></h3>
-        <p id="com" style="color: #7f8c8d; font-style: italic; margin: 5px 0;"></p>
-        <p id="uid" style="font-weight: bold; background: #eee; display: inline-block; padding: 5px 10px; border-radius: 4px;"></p>
-        <div id="tree" style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-left: 4px solid #002147; border-radius: 4px;"></div>
-        <iframe id="pdf" width="100%" height="450" style="border:1px solid #ddd; border-radius: 8px;"></iframe>
-      </div>
+    <div id="result">
+      <img id="img" src="">
+      <h3 id="sci" style="color: #002147; margin: 0;"></h3>
+      <p id="com" style="color: #7f8c8d; font-style: italic; margin: 5px 0;"></p>
+      <p id="uid" style="font-weight: bold; background: #eee; display: inline-block; padding: 5px 10px; border-radius: 4px; font-size: 12px;"></p>
+      <div id="tree" style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-left: 4px solid #002147; border-radius: 4px; font-size: 13px;"></div>
+      <iframe id="pdf" width="100%" height="450" style="border:1px solid #ddd; border-radius: 8px;"></iframe>
     </div>
   </div>
 </div>
@@ -135,74 +88,47 @@ const KEY="ZEN_DNA_2026";
 let user = JSON.parse(localStorage.getItem("user"));
 if(!user) window.location = "login.html";
 
-const uRole = parseInt(user.role);
-
-// 🛠 ACCESS CONTROL LOGIC
-if(uRole >= 2){
-  document.getElementById('btnDash').style.display = "block";
-  document.getElementById('btnRefresh').style.display = "block";
-  openTab('dashboard');
-  loadFullData();
-} else {
-  openTab('database');
+function toggleLoading(s) { 
+  document.getElementById('loader').style.display = s ? 'block' : 'none'; 
+  document.getElementById('overlay').style.display = s ? 'block' : 'none'; 
 }
-
-function toggleLoading(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; document.getElementById('overlay').style.display = s ? 'block' : 'none'; }
-function openTab(t){ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); document.getElementById(t).classList.add("active"); }
 
 function search(id){
   if(!id) return;
   toggleLoading(true);
-  fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${uRole}&userId=${user.id}&key=${KEY}`)
+  document.getElementById('result').style.display = "none";
+
+  fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${user.role}&userId=${user.id}&key=${KEY}`)
   .then(r=>r.json()).then(res=>{
     toggleLoading(false);
-    if(res.status !== "success"){ alert("Access Restricted or Specimen Not Found"); return; }
+    if(res.status !== "success"){ alert("Specimen Not Found or Access Restricted"); return; }
+    
     let s = res.data;
     document.getElementById('result').style.display = "block";
-    document.getElementById('uid').innerText = s.Unique_ID;
+    document.getElementById('uid').innerText = "Specimen ID: " + s.Unique_ID;
     document.getElementById('sci').innerText = s.Scientific_Name;
     document.getElementById('com').innerText = s.Common_Name;
+    
+    // Drive Link Processing
     document.getElementById('img').src = "https://drive.google.com/thumbnail?id=" + s.Image.split("/d/")[1].split("/")[0];
     document.getElementById('pdf').src = "https://drive.google.com/file/d/" + s.Pdf.split("/d/")[1].split("/")[0] + "/preview";
+    
     document.getElementById('tree').innerHTML = `<b>Hierarchy:</b> ${s.Phylum} → ${s.Class} → ${s.Order}`;
-    window.scrollTo(0, document.getElementById('result').offsetTop);
-  }).catch(()=>toggleLoading(false));
+    window.scrollTo({ top: document.getElementById('result').offsetTop, behavior: 'smooth' });
+  }).catch(()=> {
+    toggleLoading(false);
+    alert("Connection Error");
+  });
 }
 
 function manualSearch(){ search(document.getElementById('manual').value.trim()); }
 
 function startScanner(){
   let sc = new Html5Qrcode("reader");
-  sc.start({facingMode:"environment"},{fps:10},txt=>{ sc.stop(); search(txt); });
-}
-
-function loadFullData(){
-  toggleLoading(true);
-  fetch(`${API}?action=fullData&key=${KEY}`).then(r=>r.json()).then(res=>{
-    toggleLoading(false);
-    document.getElementById('u').innerText = res.users.length - 1;
-    document.getElementById('s').innerText = res.specimens.length - 1;
-    document.getElementById('l').innerText = res.logs.length - 1;
-    renderTable(document.getElementById('userTable'), res.users);
-    renderTable(document.getElementById('specimenTable'), res.specimens);
-    renderTable(document.getElementById('logTable'), res.logs);
-    if(res.logs.length > 1) document.getElementById('mostScanned').innerText = "📈 Recent Activity: Specimen [" + res.logs[res.logs.length-1][1] + "] accessed by [" + res.logs[res.logs.length-1][2] + "]";
-  });
-}
-
-function renderTable(el, data){
-  let h="<tr>"; data[0].forEach(x=>h+=`<th>${x}</th>`); h+="</tr>";
-  for(let i=1; i<data.length; i++){ h+="<tr>"; data[i].forEach(x=>h+=`<td>${x}</td>`); h+="</tr>"; }
-  el.innerHTML = h;
-}
-
-function filterTable(tId, cIdx) {
-  let val = event.target.value.toUpperCase();
-  let tr = document.getElementById(tId).getElementsByTagName("tr");
-  for (let i = 1; i < tr.length; i++) {
-    let td = tr[i].getElementsByTagName("td")[cIdx];
-    if (td) tr[i].style.display = td.innerText.toUpperCase().indexOf(val) > -1 ? "" : "none";
-  }
+  sc.start({facingMode:"environment"},{fps:10, qrbox: 250},txt=>{ 
+    sc.stop(); 
+    search(txt); 
+  }).catch(err => alert("Camera error: " + err));
 }
 
 function showProfile(){
@@ -211,11 +137,16 @@ function showProfile(){
   document.getElementById('pname').innerText = user.name;
   document.getElementById('pid').innerText = user.id;
   document.getElementById('pemail').innerText = user.email;
-  document.getElementById('prole').innerText = uRole == 2 ? "Admin/HOD" : (uRole == 1 ? "Staff" : "Student");
-  document.getElementById('pdept').innerText = (user.course || "General") + " - " + (user.year || "");
+  const r = parseInt(user.role);
+  document.getElementById('prole').innerText = r == 2 ? "Admin/HOD" : (r == 1 ? "Staff" : "Student");
+  document.getElementById('pdept').innerText = (user.course || "Zoology") + " - " + (user.year || "");
 }
 
-function closeProfile(){ document.getElementById('overlay').style.display = "none"; document.getElementById('profile').style.display = "none"; }
+function closeProfile(){ 
+  document.getElementById('overlay').style.display = "none"; 
+  document.getElementById('profile').style.display = "none"; 
+}
+
 function logout(){ localStorage.clear(); window.location="login.html"; }
 
 document.addEventListener('contextmenu', e => e.preventDefault());
