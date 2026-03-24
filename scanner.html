@@ -11,126 +11,121 @@
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7f6; margin:0; user-select: none; }
   .container { max-width:1000px; margin:auto; padding:15px; }
   
-  /* Cards & Layout */
   .card { background:white; padding:20px; border-radius:12px; margin-top:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
-  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #002147; padding-bottom: 10px; }
   
-  /* Tables */
-  .table-wrapper { overflow-x: auto; max-height: 300px; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; }
+  .table-wrapper { overflow-x: auto; max-height: 400px; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; }
   table { width:100%; border-collapse:collapse; background: white; }
-  td, th { border:1px solid #eee; padding:10px; font-size:12px; text-align: left; }
-  th { background: #3498db; color: white; position: sticky; top: 0; }
+  td, th { border:1px solid #eee; padding:12px; font-size:11px; text-align: left; }
+  th { background: #002147; color: white; position: sticky; top: 0; z-index: 10; }
   tr:nth-child(even) { background: #fafafa; }
 
-  /* Buttons & Inputs */
-  button { padding:10px 15px; margin:5px; border:none; border-radius:6px; background:#3498db; color:white; cursor: pointer; transition: 0.3s; }
-  button:hover { background: #2980b9; }
-  input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: calc(100% - 22px); margin-bottom: 10px; }
+  button { padding:10px 15px; margin:5px; border:none; border-radius:6px; background:#002147; color:white; cursor: pointer; transition: 0.3s; font-weight: 600; }
+  button:hover { background: #003366; }
+  input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: calc(100% - 25px); margin-bottom: 10px; font-size: 14px; }
 
-  /* Tabs & Profile */
   .tab { display:none; }
   .active { display:block; }
+  
   #profile { 
     display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%);
-    background:white; padding:30px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.3); z-index: 1000; width: 80%; max-width: 400px;
+    background:white; padding:25px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.4); 
+    z-index: 1001; width: 85%; max-width: 350px;
   }
-  .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 999; }
+  .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index: 1000; }
 
-  /* Loading Spinner */
-  #loader { display:none; text-align: center; padding: 20px; }
-  .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: auto; }
+  #loader { display:none; text-align: center; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+  .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #002147; border-radius: 50%; animation: spin 1s linear infinite; margin: auto; }
   @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-  /* Admin Dashboard Extras */
-  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: #3498db; color: white; padding: 15px; border-radius: 10px; text-align: center; }
-  .report-card { border-left: 5px solid #2ecc71; padding: 10px; background: #ebf9f1; margin-top: 10px; border-radius: 5px; }
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+  .stat-card { background: #002147; color: white; padding: 12px; border-radius: 8px; text-align: center; }
+  .stat-card span { font-size: 20px; font-weight: bold; }
+  .report-card { border-left: 5px solid #2ecc71; padding: 12px; background: #ebf9f1; margin-top: 10px; border-radius: 5px; font-size: 13px; }
 </style>
 </head>
 
 <body oncontextmenu="return false;">
 
-<div class="overlay" id="overlay"></div>
+<div class="overlay" id="overlay" onclick="closeProfile()"></div>
+<div id="loader"><div class="spinner"></div><p>Syncing Database...</p></div>
 
 <div class="container">
   <div class="header">
-    <h2>ZEN DNA SYSTEM</h2>
+    <h2 style="font-size: 18px; color: #002147;">ZEN DNA SYSTEM</h2>
     <button onclick="showProfile()">👤 Profile</button>
   </div>
 
-  <div id="loader"><div class="spinner"></div><p>Processing...</p></div>
-
-  <div id="adminTabs" style="display:none; margin-top: 10px;">
-    <button onclick="openTab('dashboard')" style="background: #2c3e50;">📊 Admin Dashboard</button>
-    <button onclick="openTab('database')" style="background: #27ae60;">🧬 Museum Database</button>
+  <div id="navTabs" style="margin-top: 15px; display: flex;">
+    <button id="btnDash" onclick="openTab('dashboard')" style="display:none; flex: 1; background: #2c3e50;">📊 Dashboard</button>
+    <button id="btnData" onclick="openTab('database')" style="flex: 1; background: #27ae60;">🧬 Database</button>
+    <button id="btnRefresh" onclick="loadFullData()" style="display:none; background: #f39c12;">🔄</button>
   </div>
 
   <div id="dashboard" class="tab">
     <div class="card">
-      <h3>Advanced Analytics</h3>
       <div class="stats-grid">
         <div class="stat-card"><h4>Users</h4><span id="u">0</span></div>
-        <div class="stat-card" style="background:#2ecc71"><h4>Specimens</h4><span id="s">0</span></div>
-        <div class="stat-card" style="background:#e74c3c"><h4>Total Scans</h4><span id="l">0</span></div>
+        <div class="stat-card" style="background:#27ae60"><h4>Specimens</h4><span id="s">0</span></div>
+        <div class="stat-card" style="background:#c0392b"><h4>Total Scans</h4><span id="l">0</span></div>
       </div>
-      <canvas id="chart" height="100"></canvas>
+      <canvas id="chart" height="120"></canvas>
     </div>
 
     <div class="card">
-      <h3>Admin Management</h3>
-      <input type="text" id="userSearch" onkeyup="filterTable('userTable', 4)" placeholder="🔎 Search User by Name...">
+      <h3>Search System Records</h3>
+      <input type="text" onkeyup="filterTable('userTable', 4)" placeholder="🔎 Search User Names...">
       <div class="table-wrapper"><table id="userTable"></table></div>
       
-      <div style="margin-top: 20px;">
-        <input type="text" id="specimenSearch" onkeyup="filterTable('specimenTable', 1)" placeholder="🔎 Search Specimen by Scientific Name...">
-        <div class="table-wrapper"><table id="specimenTable"></table></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>Live Scan Logs</h3>
+      <input type="text" style="margin-top:20px;" onkeyup="filterTable('logTable', 2)" placeholder="🔎 Search Logs by Student ID...">
       <div class="table-wrapper"><table id="logTable"></table></div>
     </div>
 
     <div class="card">
-      <h3>Insights Report</h3>
-      <div id="mostScanned" class="report-card">📈 Most scanned: Loading...</div>
-      <div id="activeUser" class="report-card" style="border-left-color: #3498db; background: #eef7fe;">👤 Top Contributor: Loading...</div>
+      <h3>Specimen Inventory</h3>
+      <input type="text" onkeyup="filterTable('specimenTable', 1)" placeholder="🔎 Search Scientific Names...">
+      <div class="table-wrapper"><table id="specimenTable"></table></div>
+    </div>
+
+    <div class="card">
+      <h3>System Insights</h3>
+      <div id="mostScanned" class="report-card">📈 Most scanned: Tracking activity...</div>
     </div>
   </div>
 
   <div id="database" class="tab">
     <div class="card">
-      <button onclick="startScanner()" style="width:100%; padding: 20px; font-weight: bold; font-size: 16px;">📷 Open QR Scanner</button>
+      <button onclick="startScanner()" style="width:100%; padding: 18px; font-size: 16px; background: #8e44ad;">📷 OPEN QR SCANNER</button>
       <div id="reader"></div>
-      <hr>
-      <input id="manual" placeholder="Enter Specimen ID manually">
+      <div style="text-align: center; margin: 15px 0; color: #7f8c8d; font-weight: bold;">- OR -</div>
+      <input id="manual" placeholder="Enter Specimen ID (e.g., ZD001)">
       <button onclick="manualSearch()" style="width:100%">🔍 Search Database</button>
 
       <div id="result" style="display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px;">
-        <img id="img" style="width:100%; border-radius: 10px; margin-bottom: 10px;">
-        <h3 id="sci" style="color: #2c3e50; margin: 0;"></h3>
-        <p id="com" style="color: #7f8c8d; font-style: italic;"></p>
+        <img id="img" style="width:100%; border-radius: 10px; margin-bottom: 10px; border: 1px solid #ddd;">
+        <h3 id="sci" style="color: #002147; margin: 0;"></h3>
+        <p id="com" style="color: #7f8c8d; font-style: italic; margin: 5px 0;"></p>
         <p id="uid" style="font-weight: bold; background: #eee; display: inline-block; padding: 5px 10px; border-radius: 4px;"></p>
-        <div id="tree" style="margin: 10px 0; padding: 10px; background: #eef2f3; border-radius: 5px;"></div>
-        <iframe id="pdf" width="100%" height="400" style="border:none; border-radius: 8px;"></iframe>
+        <div id="tree" style="margin: 10px 0; padding: 12px; background: #f8f9fa; border-left: 4px solid #002147; border-radius: 4px;"></div>
+        <iframe id="pdf" width="100%" height="450" style="border:1px solid #ddd; border-radius: 8px;"></iframe>
       </div>
     </div>
   </div>
 </div>
 
 <div id="profile">
-  <h3 style="border-bottom: 2px solid #3498db; padding-bottom: 5px;">User Profile</h3>
-  <div id="profileContent" style="font-size: 14px; line-height: 2;">
+  <h3 style="margin-top: 0; color: #002147;">User Profile</h3>
+  <div id="profDetails" style="font-size: 14px; line-height: 2;">
     <p><b>Name:</b> <span id="pname"></span></p>
-    <p><b>ID:</b> <span id="pid"></span></p>
+    <p><b>User ID:</b> <span id="pid"></span></p>
+    <p><b>Role:</b> <span id="prole"></span></p>
     <p><b>Email:</b> <span id="pemail"></span></p>
-    <p><b>Role Level:</b> <span id="prole"></span></p>
-    <p><b>Dept/Year:</b> <span id="pdept"></span></p>
+    <p><b>Dept:</b> <span id="pdept"></span></p>
   </div>
-  <hr>
-  <button onclick="logout()" style="background:#e74c3c">Logout</button>
-  <button onclick="closeProfile()" style="background:#95a5a6">Close</button>
+  <div style="margin-top: 20px; display: flex; gap: 10px;">
+    <button onclick="logout()" style="background:#c0392b; flex: 1;">Logout</button>
+    <button onclick="closeProfile()" style="background:#95a5a6; flex: 1;">Close</button>
+  </div>
 </div>
 
 <script>
@@ -140,39 +135,28 @@ const KEY="ZEN_DNA_2026";
 let user = JSON.parse(localStorage.getItem("user"));
 if(!user) window.location = "login.html";
 
-// Initial Setup
-if(user.role >= 1){
-  document.getElementById('adminTabs').style.display = "block";
+const uRole = parseInt(user.role);
+
+// 🛠 ACCESS CONTROL LOGIC
+if(uRole >= 2){
+  document.getElementById('btnDash').style.display = "block";
+  document.getElementById('btnRefresh').style.display = "block";
   openTab('dashboard');
   loadFullData();
 } else {
   openTab('database');
 }
 
-function toggleLoading(show) {
-  document.getElementById('loader').style.display = show ? 'block' : 'none';
-}
+function toggleLoading(s) { document.getElementById('loader').style.display = s ? 'block' : 'none'; document.getElementById('overlay').style.display = s ? 'block' : 'none'; }
+function openTab(t){ document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); document.getElementById(t).classList.add("active"); }
 
-function openTab(tab){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-}
-
-// Security: Basic Screenshot/Inspect Prevention
-document.onkeydown = function(e) {
-  if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
-    return false;
-  }
-};
-
-// 🔍 Search Logic
 function search(id){
+  if(!id) return;
   toggleLoading(true);
-  fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
-  .then(r=>r.json())
-  .then(res=>{
+  fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${uRole}&userId=${user.id}&key=${KEY}`)
+  .then(r=>r.json()).then(res=>{
     toggleLoading(false);
-    if(res.status !== "success"){ alert("Access Denied or Not Found"); return; }
+    if(res.status !== "success"){ alert("Access Restricted or Specimen Not Found"); return; }
     let s = res.data;
     document.getElementById('result').style.display = "block";
     document.getElementById('uid').innerText = s.Unique_ID;
@@ -180,89 +164,61 @@ function search(id){
     document.getElementById('com').innerText = s.Common_Name;
     document.getElementById('img').src = "https://drive.google.com/thumbnail?id=" + s.Image.split("/d/")[1].split("/")[0];
     document.getElementById('pdf').src = "https://drive.google.com/file/d/" + s.Pdf.split("/d/")[1].split("/")[0] + "/preview";
-    document.getElementById('tree').innerHTML = `<b>Classification:</b> ${s.Phylum} → ${s.Class} → ${s.Order}`;
+    document.getElementById('tree').innerHTML = `<b>Hierarchy:</b> ${s.Phylum} → ${s.Class} → ${s.Order}`;
+    window.scrollTo(0, document.getElementById('result').offsetTop);
   }).catch(()=>toggleLoading(false));
 }
 
-function manualSearch(){ search(document.getElementById('manual').value); }
+function manualSearch(){ search(document.getElementById('manual').value.trim()); }
 
 function startScanner(){
   let sc = new Html5Qrcode("reader");
-  sc.start({facingMode:"environment"},{fps:10},txt=>{
-    sc.stop();
-    search(txt);
-  });
+  sc.start({facingMode:"environment"},{fps:10},txt=>{ sc.stop(); search(txt); });
 }
 
-// 📊 Admin Data
 function loadFullData(){
   toggleLoading(true);
-  fetch(`${API}?action=fullData&key=${KEY}`)
-  .then(r=>r.json())
-  .then(res=>{
+  fetch(`${API}?action=fullData&key=${KEY}`).then(r=>r.json()).then(res=>{
     toggleLoading(false);
     document.getElementById('u').innerText = res.users.length - 1;
     document.getElementById('s').innerText = res.specimens.length - 1;
     document.getElementById('l').innerText = res.logs.length - 1;
-
     renderTable(document.getElementById('userTable'), res.users);
     renderTable(document.getElementById('specimenTable'), res.specimens);
     renderTable(document.getElementById('logTable'), res.logs);
-    
-    // Insights Logic
-    if(res.logs.length > 1) {
-       document.getElementById('mostScanned').innerText = "📈 Most scanned ID: " + res.logs[res.logs.length-1][1];
-       document.getElementById('activeUser').innerText = "👤 Top Contributor: " + res.logs[res.logs.length-1][2];
-    }
-
-    new Chart(document.getElementById("chart"),{
-      type:'line',
-      data:{
-        labels:["Users","Specimens","Scans"],
-        datasets:[{ label: 'Total Count', data:[res.users.length-1, res.specimens.length-1, res.logs.length-1], backgroundColor:"rgba(52, 152, 219, 0.2)", borderColor:"#3498db", fill: true }]
-      }
-    });
+    if(res.logs.length > 1) document.getElementById('mostScanned').innerText = "📈 Recent Activity: Specimen [" + res.logs[res.logs.length-1][1] + "] accessed by [" + res.logs[res.logs.length-1][2] + "]";
   });
 }
 
 function renderTable(el, data){
-  let html="<tr>";
-  data[0].forEach(h=>html+=`<th>${h}</th>`);
-  html+="</tr>";
-  for(let i=1; i<data.length; i++){
-    html+="<tr>";
-    data[i].forEach(c=>html+=`<td>${c}</td>`);
-    html+="</tr>";
-  }
-  el.innerHTML = html;
+  let h="<tr>"; data[0].forEach(x=>h+=`<th>${x}</th>`); h+="</tr>";
+  for(let i=1; i<data.length; i++){ h+="<tr>"; data[i].forEach(x=>h+=`<td>${x}</td>`); h+="</tr>"; }
+  el.innerHTML = h;
 }
 
-function filterTable(tableId, colIdx) {
-  let input = event.target.value.toUpperCase();
-  let tr = document.getElementById(tableId).getElementsByTagName("tr");
+function filterTable(tId, cIdx) {
+  let val = event.target.value.toUpperCase();
+  let tr = document.getElementById(tId).getElementsByTagName("tr");
   for (let i = 1; i < tr.length; i++) {
-    let td = tr[i].getElementsByTagName("td")[colIdx];
-    if (td) tr[i].style.display = td.innerText.toUpperCase().indexOf(input) > -1 ? "" : "none";
+    let td = tr[i].getElementsByTagName("td")[cIdx];
+    if (td) tr[i].style.display = td.innerText.toUpperCase().indexOf(val) > -1 ? "" : "none";
   }
 }
 
-// 👤 Profile
 function showProfile(){
   document.getElementById('overlay').style.display = "block";
   document.getElementById('profile').style.display = "block";
   document.getElementById('pname').innerText = user.name;
   document.getElementById('pid').innerText = user.id;
   document.getElementById('pemail').innerText = user.email;
-  document.getElementById('prole').innerText = user.role == 2 ? "Admin" : "Student";
-  document.getElementById('pdept').innerText = (user.course || "N/A") + " - " + (user.year || "");
+  document.getElementById('prole').innerText = uRole == 2 ? "Admin/HOD" : (uRole == 1 ? "Staff" : "Student");
+  document.getElementById('pdept').innerText = (user.course || "General") + " - " + (user.year || "");
 }
 
-function closeProfile(){
-  document.getElementById('overlay').style.display = "none";
-  document.getElementById('profile').style.display = "none";
-}
-
+function closeProfile(){ document.getElementById('overlay').style.display = "none"; document.getElementById('profile').style.display = "none"; }
 function logout(){ localStorage.clear(); window.location="login.html"; }
+
+document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 
 </body>
