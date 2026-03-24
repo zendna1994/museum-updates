@@ -8,269 +8,261 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-body { font-family: Arial; background:#eef2f3; margin:0; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f4f7f6; margin:0; user-select: none; }
+  .container { max-width:1000px; margin:auto; padding:15px; }
+  
+  /* Cards & Layout */
+  .card { background:white; padding:20px; border-radius:12px; margin-top:15px; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
+  .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+  
+  /* Tables */
+  .table-wrapper { overflow-x: auto; max-height: 300px; margin-top: 10px; border: 1px solid #eee; border-radius: 8px; }
+  table { width:100%; border-collapse:collapse; background: white; }
+  td, th { border:1px solid #eee; padding:10px; font-size:12px; text-align: left; }
+  th { background: #3498db; color: white; position: sticky; top: 0; }
+  tr:nth-child(even) { background: #fafafa; }
 
-.container {
-  max-width:900px;
-  margin:auto;
-  padding:15px;
-}
+  /* Buttons & Inputs */
+  button { padding:10px 15px; margin:5px; border:none; border-radius:6px; background:#3498db; color:white; cursor: pointer; transition: 0.3s; }
+  button:hover { background: #2980b9; }
+  input { padding: 10px; border: 1px solid #ddd; border-radius: 6px; width: calc(100% - 22px); margin-bottom: 10px; }
 
-.card {
-  background:white;
-  padding:20px;
-  border-radius:15px;
-  margin-top:15px;
-  box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
+  /* Tabs & Profile */
+  .tab { display:none; }
+  .active { display:block; }
+  #profile { 
+    display:none; position:fixed; top:50%; left:50%; transform: translate(-50%, -50%);
+    background:white; padding:30px; border-radius:15px; box-shadow:0 0 50px rgba(0,0,0,0.3); z-index: 1000; width: 80%; max-width: 400px;
+  }
+  .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 999; }
 
-button {
-  padding:10px;
-  margin:5px;
-  border:none;
-  border-radius:8px;
-  background:#3498db;
-  color:white;
-}
+  /* Loading Spinner */
+  #loader { display:none; text-align: center; padding: 20px; }
+  .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; margin: auto; }
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-.tab { display:none; }
-
-.active { display:block; }
-
-table {
-  width:100%;
-  border-collapse:collapse;
-}
-
-td,th {
-  border:1px solid #ddd;
-  padding:8px;
-  font-size:12px;
-}
-
-#profile {
-  display:none;
-  position:fixed;
-  top:10%;
-  left:5%;
-  right:5%;
-  background:white;
-  padding:20px;
-  border-radius:10px;
-}
+  /* Admin Dashboard Extras */
+  .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: #3498db; color: white; padding: 15px; border-radius: 10px; text-align: center; }
+  .report-card { border-left: 5px solid #2ecc71; padding: 10px; background: #ebf9f1; margin-top: 10px; border-radius: 5px; }
 </style>
 </head>
 
-<body>
+<body oncontextmenu="return false;">
+
+<div class="overlay" id="overlay"></div>
 
 <div class="container">
+  <div class="header">
+    <h2>ZEN DNA SYSTEM</h2>
+    <button onclick="showProfile()">👤 Profile</button>
+  </div>
 
-<h2>ZEN DNA SYSTEM</h2>
+  <div id="loader"><div class="spinner"></div><p>Processing...</p></div>
 
-<button onclick="showProfile()">👤 Profile</button>
+  <div id="adminTabs" style="display:none; margin-top: 10px;">
+    <button onclick="openTab('dashboard')" style="background: #2c3e50;">📊 Admin Dashboard</button>
+    <button onclick="openTab('database')" style="background: #27ae60;">🧬 Museum Database</button>
+  </div>
 
-<!-- ADMIN TABS -->
-<div id="adminTabs" style="display:none;">
-  <button onclick="openTab('dashboard')">📊 Dashboard</button>
-  <button onclick="openTab('database')">🧬 Database</button>
+  <div id="dashboard" class="tab">
+    <div class="card">
+      <h3>Advanced Analytics</h3>
+      <div class="stats-grid">
+        <div class="stat-card"><h4>Users</h4><span id="u">0</span></div>
+        <div class="stat-card" style="background:#2ecc71"><h4>Specimens</h4><span id="s">0</span></div>
+        <div class="stat-card" style="background:#e74c3c"><h4>Total Scans</h4><span id="l">0</span></div>
+      </div>
+      <canvas id="chart" height="100"></canvas>
+    </div>
+
+    <div class="card">
+      <h3>Admin Management</h3>
+      <input type="text" id="userSearch" onkeyup="filterTable('userTable', 4)" placeholder="🔎 Search User by Name...">
+      <div class="table-wrapper"><table id="userTable"></table></div>
+      
+      <div style="margin-top: 20px;">
+        <input type="text" id="specimenSearch" onkeyup="filterTable('specimenTable', 1)" placeholder="🔎 Search Specimen by Scientific Name...">
+        <div class="table-wrapper"><table id="specimenTable"></table></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Live Scan Logs</h3>
+      <div class="table-wrapper"><table id="logTable"></table></div>
+    </div>
+
+    <div class="card">
+      <h3>Insights Report</h3>
+      <div id="mostScanned" class="report-card">📈 Most scanned: Loading...</div>
+      <div id="activeUser" class="report-card" style="border-left-color: #3498db; background: #eef7fe;">👤 Top Contributor: Loading...</div>
+    </div>
+  </div>
+
+  <div id="database" class="tab">
+    <div class="card">
+      <button onclick="startScanner()" style="width:100%; padding: 20px; font-weight: bold; font-size: 16px;">📷 Open QR Scanner</button>
+      <div id="reader"></div>
+      <hr>
+      <input id="manual" placeholder="Enter Specimen ID manually">
+      <button onclick="manualSearch()" style="width:100%">🔍 Search Database</button>
+
+      <div id="result" style="display:none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 15px;">
+        <img id="img" style="width:100%; border-radius: 10px; margin-bottom: 10px;">
+        <h3 id="sci" style="color: #2c3e50; margin: 0;"></h3>
+        <p id="com" style="color: #7f8c8d; font-style: italic;"></p>
+        <p id="uid" style="font-weight: bold; background: #eee; display: inline-block; padding: 5px 10px; border-radius: 4px;"></p>
+        <div id="tree" style="margin: 10px 0; padding: 10px; background: #eef2f3; border-radius: 5px;"></div>
+        <iframe id="pdf" width="100%" height="400" style="border:none; border-radius: 8px;"></iframe>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard" class="tab">
-
-<div class="card">
-<h3>Statistics</h3>
-<p>Total Users: <span id="u"></span></p>
-<p>Total Specimens: <span id="s"></span></p>
-<p>Total Scans: <span id="l"></span></p>
-
-<canvas id="chart"></canvas>
-</div>
-
-<div class="card">
-<h3>Users</h3>
-<table id="userTable"></table>
-</div>
-
-<div class="card">
-<h3>Specimens</h3>
-<table id="specimenTable"></table>
-</div>
-
-<div class="card">
-<h3>Scan Logs</h3>
-<table id="logTable"></table>
-</div>
-
-</div>
-
-<!-- DATABASE (SCANNER) -->
-<div id="database" class="tab">
-
-<div class="card">
-
-<button onclick="startScanner()">Scan</button>
-<div id="reader"></div>
-
-<input id="manual" placeholder="Enter ID">
-<button onclick="manualSearch()">Search</button>
-
-<div id="result" style="display:none;">
-<img id="img" style="width:100%">
-<h3 id="sci"></h3>
-<p id="com"></p>
-<p id="uid"></p>
-
-<div id="tree"></div>
-
-<iframe id="pdf" width="100%" height="300"></iframe>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- PROFILE -->
 <div id="profile">
-<h3>User Profile</h3>
-<p id="pname"></p>
-<p id="pid"></p>
-<p id="pemail"></p>
-<p id="pcontact"></p>
-<p id="pdob"></p>
-<p id="pcourse"></p>
-<p id="pyear"></p>
-<button onclick="logout()">Logout</button>
-<button onclick="closeProfile()">Close</button>
+  <h3 style="border-bottom: 2px solid #3498db; padding-bottom: 5px;">User Profile</h3>
+  <div id="profileContent" style="font-size: 14px; line-height: 2;">
+    <p><b>Name:</b> <span id="pname"></span></p>
+    <p><b>ID:</b> <span id="pid"></span></p>
+    <p><b>Email:</b> <span id="pemail"></span></p>
+    <p><b>Role Level:</b> <span id="prole"></span></p>
+    <p><b>Dept/Year:</b> <span id="pdept"></span></p>
+  </div>
+  <hr>
+  <button onclick="logout()" style="background:#e74c3c">Logout</button>
+  <button onclick="closeProfile()" style="background:#95a5a6">Close</button>
 </div>
 
 <script>
-
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
-let user=JSON.parse(localStorage.getItem("user"));
-if(!user) window.location="login.html";
+let user = JSON.parse(localStorage.getItem("user"));
+if(!user) window.location = "login.html";
 
-// ADMIN MODE
-if(user.role==2){
-  adminTabs.style.display="block";
+// Initial Setup
+if(user.role >= 2){
+  document.getElementById('adminTabs').style.display = "block";
   openTab('dashboard');
   loadFullData();
-}else{
+} else {
   openTab('database');
 }
 
-// TAB SWITCH
+function toggleLoading(show) {
+  document.getElementById('loader').style.display = show ? 'block' : 'none';
+}
+
 function openTab(tab){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   document.getElementById(tab).classList.add("active");
 }
 
-// 🔍 SEARCH
+// Security: Basic Screenshot/Inspect Prevention
+document.onkeydown = function(e) {
+  if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 'I'.charCodeAt(0) || e.keyCode == 'J'.charCodeAt(0) || e.keyCode == 'C'.charCodeAt(0))) || (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0))) {
+    return false;
+  }
+};
+
+// 🔍 Search Logic
 function search(id){
-fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
-.then(r=>r.json())
-.then(res=>{
-if(res.status!=="success"){alert("Error");return;}
-
-let s=res.data;
-result.style.display="block";
-
-uid.innerText=s.Unique_ID;
-sci.innerText=s.Scientific_Name;
-com.innerText=s.Common_Name;
-
-img.src="https://drive.google.com/thumbnail?id="+s.Image.split("/d/")[1].split("/")[0];
-pdf.src="https://drive.google.com/file/d/"+s.Pdf.split("/d/")[1].split("/")[0]+"/preview";
-
-tree.innerHTML=`Phylum: ${s.Phylum} → Class: ${s.Class}`;
-});
+  toggleLoading(true);
+  fetch(`${API}?action=scan&id=${id}&role=${user.role}&userId=${user.id}&key=${KEY}`)
+  .then(r=>r.json())
+  .then(res=>{
+    toggleLoading(false);
+    if(res.status !== "success"){ alert("Access Denied or Not Found"); return; }
+    let s = res.data;
+    document.getElementById('result').style.display = "block";
+    document.getElementById('uid').innerText = s.Unique_ID;
+    document.getElementById('sci').innerText = s.Scientific_Name;
+    document.getElementById('com').innerText = s.Common_Name;
+    document.getElementById('img').src = "https://drive.google.com/thumbnail?id=" + s.Image.split("/d/")[1].split("/")[0];
+    document.getElementById('pdf').src = "https://drive.google.com/file/d/" + s.Pdf.split("/d/")[1].split("/")[0] + "/preview";
+    document.getElementById('tree').innerHTML = `<b>Classification:</b> ${s.Phylum} → ${s.Class} → ${s.Order}`;
+  }).catch(()=>toggleLoading(false));
 }
 
-// 📷 SCANNER
+function manualSearch(){ search(document.getElementById('manual').value); }
+
 function startScanner(){
-let sc=new Html5Qrcode("reader");
-sc.start({facingMode:"environment"},{fps:10},txt=>{
-sc.stop();
-search(txt);
-});
+  let sc = new Html5Qrcode("reader");
+  sc.start({facingMode:"environment"},{fps:10},txt=>{
+    sc.stop();
+    search(txt);
+  });
 }
 
-function manualSearch(){ search(manual.value); }
-
-// 📊 FULL ADMIN DATA
+// 📊 Admin Data
 function loadFullData(){
-fetch(`${API}?action=fullData&key=${KEY}`)
-.then(r=>r.json())
-.then(res=>{
+  toggleLoading(true);
+  fetch(`${API}?action=fullData&key=${KEY}`)
+  .then(r=>r.json())
+  .then(res=>{
+    toggleLoading(false);
+    document.getElementById('u').innerText = res.users.length - 1;
+    document.getElementById('s').innerText = res.specimens.length - 1;
+    document.getElementById('l').innerText = res.logs.length - 1;
 
-let users=res.users;
-let specimens=res.specimens;
-let logs=res.logs;
+    renderTable(document.getElementById('userTable'), res.users);
+    renderTable(document.getElementById('specimenTable'), res.specimens);
+    renderTable(document.getElementById('logTable'), res.logs);
+    
+    // Insights Logic
+    if(res.logs.length > 1) {
+       document.getElementById('mostScanned').innerText = "📈 Most scanned ID: " + res.logs[res.logs.length-1][1];
+       document.getElementById('activeUser').innerText = "👤 Top Contributor: " + res.logs[res.logs.length-1][2];
+    }
 
-// STATS
-u.innerText=users.length-1;
-s.innerText=specimens.length-1;
-l.innerText=logs.length-1;
-
-// TABLES
-renderTable(userTable,users);
-renderTable(specimenTable,specimens);
-renderTable(logTable,logs);
-
-// CHART
-new Chart(document.getElementById("chart"),{
-type:'bar',
-data:{
-labels:["Users","Specimens","Scans"],
-datasets:[{
-data:[users.length-1,specimens.length-1,logs.length-1],
-backgroundColor:["#3498db","#2ecc71","#e74c3c"]
-}]
-}
-});
-
-});
+    new Chart(document.getElementById("chart"),{
+      type:'line',
+      data:{
+        labels:["Users","Specimens","Scans"],
+        datasets:[{ label: 'Total Count', data:[res.users.length-1, res.specimens.length-1, res.logs.length-1], backgroundColor:"rgba(52, 152, 219, 0.2)", borderColor:"#3498db", fill: true }]
+      }
+    });
+  });
 }
 
-// TABLE RENDER
-function renderTable(el,data){
-let html="<tr>";
-data[0].forEach(h=>html+=`<th>${h}</th>`);
-html+="</tr>";
-
-for(let i=1;i<data.length;i++){
-html+="<tr>";
-data[i].forEach(c=>html+=`<td>${c}</td>`);
-html+="</tr>";
+function renderTable(el, data){
+  let html="<tr>";
+  data[0].forEach(h=>html+=`<th>${h}</th>`);
+  html+="</tr>";
+  for(let i=1; i<data.length; i++){
+    html+="<tr>";
+    data[i].forEach(c=>html+=`<td>${c}</td>`);
+    html+="</tr>";
+  }
+  el.innerHTML = html;
 }
 
-el.innerHTML=html;
+function filterTable(tableId, colIdx) {
+  let input = event.target.value.toUpperCase();
+  let tr = document.getElementById(tableId).getElementsByTagName("tr");
+  for (let i = 1; i < tr.length; i++) {
+    let td = tr[i].getElementsByTagName("td")[colIdx];
+    if (td) tr[i].style.display = td.innerText.toUpperCase().indexOf(input) > -1 ? "" : "none";
+  }
 }
 
-// PROFILE
+// 👤 Profile
 function showProfile(){
-profile.style.display="block";
-pname.innerText="Name: "+user.name;
-pid.innerText="ID: "+user.id;
-pemail.innerText="Email: "+user.email;
-pcontact.innerText="Contact: "+(user.contact||"");
-pdob.innerText="DOB: "+(user.dob||"");
-pcourse.innerText="Course: "+(user.course||"");
-pyear.innerText="Year: "+(user.year||"");
+  document.getElementById('overlay').style.display = "block";
+  document.getElementById('profile').style.display = "block";
+  document.getElementById('pname').innerText = user.name;
+  document.getElementById('pid').innerText = user.id;
+  document.getElementById('pemail').innerText = user.email;
+  document.getElementById('prole').innerText = user.role == 2 ? "Admin" : "Student";
+  document.getElementById('pdept').innerText = (user.course || "N/A") + " - " + (user.year || "");
 }
 
-function closeProfile(){ profile.style.display="none"; }
-
-// LOGOUT
-function logout(){
-localStorage.clear();
-window.location="login.html";
+function closeProfile(){
+  document.getElementById('overlay').style.display = "none";
+  document.getElementById('profile').style.display = "none";
 }
 
+function logout(){ localStorage.clear(); window.location="login.html"; }
 </script>
 
 </body>
