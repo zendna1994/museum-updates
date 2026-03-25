@@ -5,85 +5,112 @@
 <title>ZEN DNA - MUSEUM DATABASE</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,600&display=swap');
+
 :root{
-  --primary:#1e3a8a;
-  --accent:#3b82f6;
-  --success:#059669;
-  --glass: rgba(255, 255, 255, 0.96);
+  --primary: #1e3a8a;
+  --accent: #3b82f6;
+  --success: #059669;
+  --danger: #dc2626;
+  --glass: rgba(255, 255, 255, 0.98);
 }
 
 /* BASE STYLE & SECURITY */
 body{
-  margin:0; font-family:'Segoe UI', sans-serif;
-  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+  margin:0; font-family: 'Inter', sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
   url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
   background-size:cover; background-attachment: fixed;
   user-select: none; -webkit-user-select: none;
 }
 
-/* HEADER */
+/* MOBILE RESPONSIVE HEADER */
 .header{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:15px 20px; color:#fff; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+  display:flex; flex-direction: row; justify-content:space-between; align-items:center;
+  padding:15px 20px; color:#fff; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
 }
-.title h1{margin:0; font-size:18px; letter-spacing: 1px;}
+.title h1{ margin:0; font-size:16px; letter-spacing: 2px; font-weight: 800; }
+.title p { margin:0; font-size:10px; opacity: 0.7; }
+
+.nav-btns { display: flex; gap: 8px; }
 .nav-btns button {
-  background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-  color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; margin-left: 8px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer;
+  font-weight: 600; transition: 0.3s;
 }
+.nav-btns button:hover { background: rgba(255,255,255,0.2); }
 
 /* MAIN CONTAINER */
 .container{
-  background: var(--glass); margin:15px; border-radius:20px; padding:20px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  background: var(--glass); margin:15px; border-radius:24px; padding:25px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
 }
 
-input{ width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; margin-bottom: 10px; box-sizing: border-box; }
-.btn-primary{ width:100%; padding:12px; border:none; border-radius:10px; background:var(--primary); color:#fff; font-weight: bold; cursor:pointer; }
+input{ 
+  width:100%; padding:14px; border-radius:12px; border:1px solid #e2e8f0; 
+  margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 14px;
+}
+.btn-primary{ 
+  width:100%; padding:14px; border:none; border-radius:12px; 
+  background:var(--primary); color:#fff; font-weight: 700; cursor:pointer; font-size: 14px;
+}
 
 /* SCANNER BOX */
-#reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 2px solid var(--primary); display:none; }
+#reader { width: 100%; border-radius: 18px; overflow: hidden; margin-top: 15px; border: 3px solid var(--primary); display:none; }
 
 /* SPECIMEN DISPLAY */
-.specimen-card { margin-top: 20px; animation: slideIn 0.5s ease-out; }
-.full-img { width: 100%; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); margin-bottom: 15px; max-height: 250px; object-fit: contain; background: #f8fafc; }
+.specimen-card { margin-top: 25px; animation: slideIn 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.full-img { 
+    width: 100%; border-radius: 16px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); 
+    margin-bottom: 20px; max-height: 300px; object-fit: contain; background: #fff; 
+}
 
-.section-label { font-size: 11px; font-weight: 800; color: var(--primary); text-transform: uppercase; margin-top: 15px; border-left: 3px solid var(--primary); padding-left: 8px; }
-.scientific { font-style: italic; font-size: 22px; color: #1e293b; margin: 5px 0; }
-.common { font-weight: 600; color: #475569; margin-bottom: 15px; }
+.section-label { 
+    font-size: 10px; font-weight: 800; color: var(--accent); 
+    text-transform: uppercase; margin-top: 20px; letter-spacing: 1px;
+}
+.scientific { 
+    font-family: 'Playfair Display', serif; font-style: italic; 
+    font-size: 26px; color: #0f172a; margin: 4px 0; font-weight: 600;
+}
+.common { font-weight: 500; color: #64748b; font-size: 15px; margin-bottom: 20px; }
 
 /* TREE UI */
-.tree { margin-top: 10px; font-family: 'Courier New', monospace; font-size: 14px; background: #f1f5f9; padding: 15px; border-radius: 10px; line-height: 1.5; }
+.tree { 
+    margin-top: 12px; font-family: 'Courier New', monospace; font-size: 14px; 
+    background: #f8fafc; padding: 18px; border-radius: 12px; line-height: 1.6; color: #334155;
+    border: 1px solid #f1f5f9;
+}
 
-/* PDF VIEWER (A4 Style) */
-.pdf-viewer { width: 100%; height: 500px; border: 1px solid #ddd; border-radius: 10px; margin-top: 15px; }
+/* PDF VIEWER */
+.pdf-viewer { width: 100%; height: 550px; border: 1px solid #e2e8f0; border-radius: 14px; margin-top: 20px; }
 
 /* ALERT */
 #statusAlert {
-  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-  background: var(--success); color: white; padding: 10px 25px; border-radius: 30px;
-  font-weight: bold; display: none; z-index: 10000; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+  position: fixed; top: 25px; left: 50%; transform: translateX(-50%);
+  background: var(--success); color: white; padding: 12px 30px; border-radius: 40px;
+  font-weight: 700; display: none; z-index: 10000; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-size: 13px;
 }
 
 /* PROFILE MODAL */
 .modal { position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; justify-content:center; align-items:center; z-index: 9999; padding: 20px; }
-.id-card { background: white; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; position: relative; color: #333; }
-.id-card h2 { margin: 0; color: var(--primary); font-size: 20px; }
-.detail-row { display: flex; justify-content: space-between; font-size: 12px; padding: 6px 0; border-bottom: 1px solid #eee; }
-.qr-box { text-align: center; margin: 15px 0; }
+.id-card { background: white; padding: 30px; border-radius: 24px; width: 100%; max-width: 340px; color: #1e293b; text-align: left; }
+.id-card h2 { margin: 5px 0; color: var(--primary); font-size: 22px; font-weight: 800; }
+.detail-row { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+.qr-box { display: flex; justify-content: center; align-items: center; margin: 20px 0; }
 
-@keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
 </style>
 </head>
 
 <body oncontextmenu="return false" onkeydown="return (event.ctrlKey && ['s','u','i','j'].includes(event.key.toLowerCase())) ? false : true">
 
-<div id="statusAlert">✅ SPECIMEN FOUND</div>
+<div id="statusAlert">✅ SPECIMEN RECORD FOUND</div>
 
 <div class="header">
   <div class="title">
-    <h1>MUSEUM DATABASE</h1>
-    <p>ZEN DNA | LOYOLA ZOOLOGY</p>
+    <h1>ZEN DNA</h1>
+    <p>LOYOLA ZOOLOGY MUSEUM</p>
   </div>
   <div class="nav-btns">
     <button onclick="openProfile()">PROFILE</button>
@@ -92,17 +119,16 @@ input{ width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; marg
 </div>
 
 <div class="container">
-  <input id="scanId" placeholder="Enter Specimen ID...">
-  <button class="btn-primary" onclick="scan()">SEARCH</button>
+  <input id="scanId" placeholder="Enter Specimen ID (e.g. T-V-P09)">
+  <button class="btn-primary" onclick="scan()">SEARCH DATABASE</button>
   
   <div id="reader"></div>
-  <button id="camBtn" onclick="toggleScanner()" style="background:var(--accent); margin-top:10px;" class="btn-primary">TAP TO SCAN QR</button>
+  <button id="camBtn" onclick="toggleScanner()" style="background:var(--accent); margin-top:12px;" class="btn-primary">TAP TO SCAN QR CODE</button>
 
   <div id="result"></div>
 
-  <h4 style="margin:25px 0 10px; font-size:14px;">SCAN HISTORY</h4>
-  <input placeholder="Filter history..." oninput="filterHistory(this.value)">
-  <div style="max-height: 150px; overflow: auto; border: 1px solid #eee; border-radius:10px;">
+  <h4 style="margin:30px 0 12px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Recent Activity</h4>
+  <div style="max-height: 180px; overflow: auto; border-radius:12px; background:#f8fafc; border:1px solid #f1f5f9;">
     <table style="width:100%; font-size:12px; border-collapse: collapse;">
       <tbody id="historyTable"></tbody>
     </table>
@@ -111,16 +137,16 @@ input{ width:100%; padding:12px; border-radius:10px; border:1px solid #ddd; marg
 
 <div class="modal" id="profileModal">
   <div class="id-card">
-    <div style="font-size:10px; font-weight:bold; color:var(--primary);">DIGITAL IDENTITY CARD</div>
+    <div style="font-size:9px; font-weight:800; color:var(--accent); letter-spacing:1px;">MUSEUM IDENTITY SYSTEM</div>
     <h2 id="p_name">USER NAME</h2>
-    <div id="p_role" style="font-size:12px; font-weight:bold; margin-bottom:15px; color:var(--accent);">ROLE</div>
+    <div id="p_role" style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:20px;">ROLE</div>
     
     <div id="p_details"></div>
     
     <div class="qr-box" id="p_qr"></div>
-    <div id="p_id" style="text-align:center; font-family:monospace; font-weight:bold;">ID: ---</div>
+    <div id="p_id" style="text-align:center; font-family:monospace; font-weight:800; font-size:14px; color:var(--primary);">UID: ---</div>
     
-    <button onclick="closeProfile()" style="margin-top:15px; background:#444;" class="btn-primary">CLOSE</button>
+    <button onclick="closeProfile()" style="margin-top:25px; background:#1e293b;" class="btn-primary">CLOSE</button>
   </div>
 </div>
 
@@ -143,7 +169,7 @@ function toggleScanner() {
     reader.style.display = "block";
     btn.innerText = "CLOSE CAMERA";
     html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:250}, msg => {
+    html5QrCode.start({facingMode:"environment"}, {fps:15, qrbox:250}, msg => {
       document.getElementById("scanId").value = msg;
       scan();
       toggleScanner();
@@ -151,32 +177,37 @@ function toggleScanner() {
   } else {
     if(html5QrCode) html5QrCode.stop().then(() => {
         reader.style.display = "none";
-        btn.innerText = "TAP TO SCAN QR";
+        btn.innerText = "TAP TO SCAN QR CODE";
     });
   }
 }
 
 function scan() {
   const id=document.getElementById("scanId").value.trim();
+  const resultDiv = document.getElementById("result");
   if(!id) return;
   
+  resultDiv.innerHTML = "<p style='text-align:center; font-size:12px;'>Consulting Database...</p>";
+
   fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${user.role}&key=${KEY}`)
   .then(r=>r.json())
   .then(res=>{
     if(res.status === "success") {
       showAlert();
       const d = res.data;
-      // Image Fix: Unified extraction
-      const imgId = d.Image?.match(/[-\w]{25,}/);
-      const imgSrc = imgId ? `https://drive.google.com/uc?export=view&id=${imgId[0]}` : "https://via.placeholder.com/400x300?text=No+Image+Available";
+      
+      // IMAGE FORMATTER: Handles both view and file/d links automatically
+      const rawImg = d.Image || "";
+      const imgId = rawImg.match(/[-\w]{25,}/);
+      const imgSrc = imgId ? `https://drive.google.com/uc?export=view&id=${imgId[0]}` : "";
 
-      document.getElementById("result").innerHTML = `
+      resultDiv.innerHTML = `
         <div class="specimen-card">
-          <img src="${imgSrc}" class="full-img" onerror="this.src='https://via.placeholder.com/400?text=Image+Access+Restricted'">
+          ${imgSrc ? `<img src="${imgSrc}" class="full-img" alt="Specimen Photo">` : '<div style="background:#f1f5f9; height:150px; border-radius:15px; display:flex; align-items:center; justify-content:center; color:#94a3b8;">Image Not Available</div>'}
           
           <div class="section-label">Nomenclature</div>
           <h2 class="scientific">${d.Scientific_Name}</h2>
-          <div class="common">${d.Common_Name} (ID: ${id})</div>
+          <div class="common">${d.Common_Name} <span style="font-weight:400; opacity:0.6;">| ID: ${id}</span></div>
 
           <div class="section-label">Classification</div>
           <div class="tree">
@@ -185,15 +216,15 @@ function scan() {
             &nbsp;&nbsp;&nbsp;&nbsp;└── 🐾 ${d.Class}
           </div>
 
-          <div class="section-label">Digital Notes</div>
-          <p style="font-size:12px; color:#555;">Record verified. Accessing full documentation...</p>
-
-          ${d.Pdf ? `<iframe src="https://drive.google.com/file/d/${d.Pdf.match(/[-\w]{25,}/)[0]}/preview" class="pdf-viewer"></iframe>` : ''}
+          <div class="section-label">Documentation</div>
+          ${d.Pdf ? `<iframe src="https://drive.google.com/file/d/${d.Pdf.match(/[-\w]{25,}/)[0]}/preview" class="pdf-viewer"></iframe>` : '<p style="font-size:12px; color:#94a3b8;">No PDF available for this record.</p>'}
         </div>
       `;
       loadHistory();
+    } else if (res.status === "restricted") {
+        resultDiv.innerHTML = "<div style='background:#fef2f2; color:#dc2626; padding:20px; border-radius:15px; text-align:center; margin-top:20px; font-weight:700;'>⛔ ACCESS RESTRICTED<br><small style='font-weight:400'>Higher clearance required.</small></div>";
     } else {
-      alert("Specimen not found or Restricted.");
+        resultDiv.innerHTML = "<div style='background:#f8fafc; color:#64748b; padding:20px; border-radius:15px; text-align:center; margin-top:20px; font-weight:700;'>🔍 NO SPECIMEN FOUND<br><small style='font-weight:400'>Check the ID and try again.</small></div>";
     }
   });
 }
@@ -207,14 +238,9 @@ function showAlert() {
 function loadHistory() {
   fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`).then(r=>r.json()).then(res=>{
     let html="";
-    res.data.reverse().forEach(d => html += `<tr style="border-bottom:1px solid #eee;"><td style="padding:8px;">${d.date}</td><td style="padding:8px; font-weight:bold;">${d.id}</td></tr>`);
+    res.data.reverse().forEach(d => html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:12px; color:#64748b;">${d.date}</td><td style="padding:12px; font-weight:700; color:var(--primary); text-align:right;">${d.id}</td></tr>`);
     document.getElementById("historyTable").innerHTML = html;
   });
-}
-
-function filterHistory(v) {
-  v=v.toLowerCase();
-  document.querySelectorAll("#historyTable tr").forEach(r => r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none");
 }
 
 function openProfile() {
@@ -222,19 +248,18 @@ function openProfile() {
   document.getElementById("p_role").innerText = user.roleName || "MEMBER";
   document.getElementById("p_id").innerText = `UID: ${user.id}`;
   
-  // Dynamic details based on sheet columns
   let detailHtml = "";
   const skip = ['status', 'role', 'name', 'id', 'roleName'];
   Object.entries(user).forEach(([k, v]) => {
     if(!skip.includes(k) && v) {
-      detailHtml += `<div class="detail-row"><span style="color:#888; text-transform:capitalize;">${k.replace(/_/g,' ')}</span><span>${v}</span></div>`;
+      detailHtml += `<div class="detail-row"><span style="color:#94a3b8; text-transform:uppercase; font-size:10px;">${k.replace(/_/g,' ')}</span><span style="font-weight:600">${v}</span></div>`;
     }
   });
   document.getElementById("p_details").innerHTML = detailHtml;
   
   const qrBox = document.getElementById("p_qr");
   qrBox.innerHTML = "";
-  new QRCode(qrBox, { text: user.id, width: 120, height: 120 });
+  new QRCode(qrBox, { text: user.id, width: 140, height: 140 });
   
   document.getElementById("profileModal").style.display = "flex";
 }
