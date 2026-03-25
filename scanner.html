@@ -1,262 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MUSEUM DATABASE</title>
-
-<style>
-:root{
-  --primary:#1e3a8a;
-}
-
-/* BODY */
-body{
-  margin:0;
-  font-family:'Segoe UI',sans-serif;
-  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
-  url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
-  background-size:cover;
-}
-
-/* HEADER */
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px;
-  color:#fff;
-}
-.title h1{margin:0;font-size:18px;}
-.title p{margin:0;font-size:11px;color:#ccc;}
-.icons span{margin-left:12px;cursor:pointer;font-size:18px;}
-
-/* CARD */
-.container{
-  background:#fff;
-  margin:10px;
-  border-radius:15px;
-  padding:15px;
-}
-
-/* INPUT */
-input{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-/* BUTTON */
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-  background:var(--primary);
-  color:#fff;
-}
-
-/* RESULT */
-.scientific{font-style:italic;font-size:16px;}
-.common{font-weight:bold;}
-.specimen-img{width:100%;border-radius:10px;margin-top:10px;}
-
-/* TREE */
-.tree{margin-top:10px;text-align:center;}
-.node{background:#f3f4f6;padding:8px;border-radius:10px;margin:5px;}
-
-/* HISTORY */
-.history{max-height:200px;overflow:auto;margin-top:10px;}
-table{width:100%;font-size:12px;border-collapse:collapse;}
-td{border-bottom:1px solid #eee;padding:6px;}
-.sc{font-style:italic;}
-.cm{font-weight:bold;}
-
-/* PROFILE */
-.profile-popup{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.85);
-  display:none;
-  justify-content:center;
-  align-items:center;
-}
-.profile-box{
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  width:90%;
-}
-.profile-box::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:url('https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png') center/250px no-repeat;
-  opacity:0.12;
-}
-</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MUSEUM DATABASE</title>
+    <style>
+        :root { --primary: #1e3a8a; --secondary: #065f46; }
+        body {
+            margin: 0; font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+            url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
+            background-size: cover; background-attachment: fixed;
+        }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 12px; color: #fff; }
+        .title h1 { margin: 0; font-size: 18px; }
+        .title p { margin: 0; font-size: 11px; color: #ccc; }
+        .icons span { margin-left: 12px; cursor: pointer; font-size: 18px; }
+        .container { background: rgba(255,255,255,0.95); margin: 10px; border-radius: 15px; padding: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; background: var(--primary); color: #fff; font-weight: bold; cursor: pointer; }
+        button.stop { background: #991b1b; }
+        #result { margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee; }
+        .scientific { font-style: italic; font-size: 18px; color: var(--primary); }
+        .common { font-weight: bold; font-size: 14px; margin-bottom: 10px; }
+        .specimen-img { width: 100%; border-radius: 10px; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .tree { margin: 15px 0; display: flex; flex-direction: column; gap: 5px; }
+        .node { background: #f3f4f6; padding: 8px; border-radius: 6px; font-size: 13px; border-left: 4px solid var(--primary); }
+        .history-section { margin-top: 20px; }
+        .history { max-height: 250px; overflow: auto; background: #fafafa; border-radius: 8px; border: 1px solid #eee; }
+        table { width: 100%; font-size: 11px; border-collapse: collapse; }
+        th { background: #eee; padding: 8px; text-align: left; position: sticky; top: 0; }
+        td { border-bottom: 1px solid #eee; padding: 10px 8px; }
+        .sc { font-style: italic; color: #444; }
+        .cm { font-weight: bold; }
+        .profile-popup { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .profile-box { background: #fff; padding: 25px; border-radius: 15px; width: 85%; max-width: 320px; position: relative; }
+        .profile-box h3 { color: var(--primary); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    </style>
 </head>
-
 <body oncontextmenu="return false">
 
-<!-- HEADER -->
 <div class="header">
-  <div class="title">
-    <h1>MUSEUM DATABASE</h1>
-    <p>ZEN - DNA</p>
-  </div>
-  <div class="icons">
-    <span onclick="openProfile()">👤</span>
-    <span onclick="logout()">🔓</span>
-  </div>
+    <div class="title">
+        <h1>MUSEUM DATABASE</h1>
+        <p>ZEN - DNA | LOYOLA COLLEGE</p>
+    </div>
+    <div class="icons">
+        <span onclick="openProfile()">👤</span>
+        <span onclick="logout()">🔓</span>
+    </div>
 </div>
 
 <div class="container">
+    <input id="scanId" placeholder="Enter Specimen ID (e.g. T-V-P09...)">
+    <button onclick="scan()">SEARCH SPECIMEN</button>
 
-<input id="scanId" placeholder="Scan / Enter ID">
-<button onclick="scan()">SCAN</button>
+    <div id="reader" style="margin-top:10px; border-radius: 10px; overflow: hidden;"></div>
+    <button id="camBtn" onclick="toggleScanner()">START CAMERA SCANNER</button>
 
-<div id="reader"></div>
-<button onclick="startScanner()">START CAMERA</button>
-<button onclick="stopScanner()">STOP CAMERA</button>
+    <div id="result"></div>
 
-<div id="result"></div>
-
-<h4>HISTORY</h4>
-<input placeholder="Search..." oninput="filterHistory(this.value)">
-<div class="history">
-  <table id="historyTable"></table>
+    <div class="history-section">
+        <h4>RECENT ACTIVITY</h4>
+        <input placeholder="Filter history..." oninput="filterHistory(this.value)" style="margin-bottom: 10px;">
+        <div class="history">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>ID</th><th>Specimen</th></tr>
+                </thead>
+                <tbody id="historyTable"></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-</div>
-
-<!-- PROFILE -->
 <div class="profile-popup" id="profile">
-  <div class="profile-box">
-    <button onclick="closeProfile()">Close</button>
-    <div id="profileData"></div>
-  </div>
+    <div class="profile-box">
+        <h3>User Profile</h3>
+        <div id="profileData"></div>
+        <button onclick="closeProfile()" style="background:#444">CLOSE</button>
+    </div>
 </div>
 
-<footer style="text-align:center;color:#ddd;">© 2026 ZEN - DNA. All rights reserved.</footer>
+<footer style="text-align:center; color:#ddd; padding: 20px; font-size: 10px;">
+    © 2026 ZEN - DNA | PG & Research Dept. of Zoology.
+</footer>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
-
 <script>
-const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
-const KEY="ZEN_DNA_2026";
+const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
+const KEY = "ZEN_DNA_2026";
 
-/* LOGIN CHECK */
-const user=JSON.parse(localStorage.getItem("user"));
-if(!user){ location.href="login.html"; }
+/* 1. SECURITY & DATA INITIALIZATION */
+const user = JSON.parse(localStorage.getItem("user"));
+if(!user) { window.location.href = "login.html"; }
 
-const userLevel=parseInt(user.role);
+// FIX: Pull the numeric role we set in the login script
+const userLevel = Number(user.role || 0);
 
-/* SCAN */
-function scan(){
- const id=document.getElementById("scanId").value;
-const currentRole = user.role || 0;
-fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${currentRole}&key=${KEY}`)
- .then(r=>r.json())
- .then(res=>{
-   if(res.status==="restricted"){
-     result.innerHTML="<p style='color:red'>ACCESS DENIED</p>";
-     return;
-   }
-   if(res.status==="not_found"){
-     result.innerHTML="<p>No specimen found</p>";
-     return;
-   }
+/* 2. SCANNING LOGIC */
+function scan() {
+    const id = document.getElementById("scanId").value.trim();
+    const resultDiv = document.getElementById("result");
+    
+    if(!id) return;
+    
+    resultDiv.innerHTML = "<p style='text-align:center;'>Searching database...</p>";
 
-   const d=res.data;
+    // FIX: Passing current user role correctly to check against 'Access_level' column
+    fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${userLevel}&key=${KEY}`)
+    .then(r => r.json())
+    .then(res => {
+        if(res.status === "restricted") {
+            resultDiv.innerHTML = "<div style='color:#b91c1c; padding:15px; background:#fee2e2; border-radius:8px; text-align:center; font-weight:bold;'>⚠️ ACCESS RESTRICTED<br><small>Higher clearance level required.</small></div>";
+            return;
+        }
+        if(res.status === "not_found") {
+            resultDiv.innerHTML = "<p style='text-align:center; color:#666;'>Specimen ID not found in database.</p>";
+            return;
+        }
 
-   const imgId=d.Image?.match(/[-\w]{25,}/);
-   const img=imgId?`https://drive.google.com/uc?export=view&id=${imgId[0]}`:"";
+        const d = res.data;
+        
+        // Clean Google Drive links for preview
+        const imgId = d.Image?.match(/[-\w]{25,}/);
+        const imgTag = imgId ? `<img class="specimen-img" src="https://drive.google.com/uc?export=view&id=${imgId[0]}">` : "";
 
-   const pdfId=d.PDF?.match(/[-\w]{25,}/);
-   const pdf=pdfId?`
-   <iframe src="https://drive.google.com/file/d/${pdfId[0]}/preview"
-   style="width:100%;height:350px;border:none;margin-top:10px;"></iframe>`:"";
+        const pdfId = d.Pdf?.match(/[-\w]{25,}/);
+        const pdfTag = pdfId ? `<iframe src="https://drive.google.com/file/d/${pdfId[0]}/preview" style="width:100%; height:400px; border:none; border-radius:10px; margin-top:15px;"></iframe>` : "";
 
-   result.innerHTML=`
-     <div class="scientific">${d.Scientific_Name}</div>
-     <div class="common">${d.Common_Name}</div>
-     ${img?`<img class="specimen-img" src="${img}">`:""}
-
-     <div class="tree">
-       <div class="node">🌍 Animalia</div>
-       <div class="node">🧬 ${d.Phylum}</div>
-       <div class="node">🐾 ${d.Class}</div>
-     </div>
-
-     ${pdf}
-   `;
-
-   loadHistory(); // refresh after valid scan
- });
+        resultDiv.innerHTML = `
+            <div class="scientific">${d.Scientific_Name}</div>
+            <div class="common">${d.Common_Name}</div>
+            ${imgTag}
+            <div class="tree">
+                <div class="node">🌍 Kingdom: Animalia</div>
+                <div class="node">🧬 Phylum: ${d.Phylum}</div>
+                <div class="node">🐾 Class: ${d.Class}</div>
+            </div>
+            ${pdfTag}
+        `;
+        loadHistory(); 
+    })
+    .catch(err => {
+        resultDiv.innerHTML = "<p style='color:red'>Connection error. Please try again.</p>";
+    });
 }
 
-/* HISTORY (REAL FROM SHEET) */
-function loadHistory(){
- fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
- .then(r=>r.json())
- .then(res=>{
-   let html="";
-   res.data.forEach(d=>{
-     html+=`
-     <tr>
-       <td>${d.date}</td>
-       <td>${d.id}</td>
-       <td class="sc">${d.Scientific_Name}</td>
-       <td class="cm">${d.Common_Name}</td>
-     </tr>`;
-   });
-   historyTable.innerHTML=html;
- });
+/* 3. HISTORY LOGIC */
+function loadHistory() {
+    fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
+    .then(r => r.json())
+    .then(res => {
+        let html = "";
+        if(res.data && res.data.length > 0) {
+            res.data.reverse().forEach(d => { // Newest first
+                html += `
+                <tr>
+                    <td>${d.date}</td>
+                    <td><b>${d.id}</b></td>
+                    <td><span class="sc">${d.Scientific_Name || '---'}</span></td>
+                </tr>`;
+            });
+        } else {
+            html = "<tr><td colspan='3' style='text-align:center'>No scan history found.</td></tr>";
+        }
+        document.getElementById("historyTable").innerHTML = html;
+    });
 }
 loadHistory();
 
-/* SEARCH */
-function filterHistory(v){
- v=v.toLowerCase();
- document.querySelectorAll("#historyTable tr").forEach(r=>{
-   r.style.display=r.innerText.toLowerCase().includes(v)?"":"none";
- });
+function filterHistory(v) {
+    v = v.toLowerCase();
+    document.querySelectorAll("#historyTable tr").forEach(r => {
+        r.style.display = r.innerText.toLowerCase().includes(v) ? "" : "none";
+    });
 }
 
-/* QR */
-let scanner;
-function startScanner(){
- scanner=new Html5Qrcode("reader");
- scanner.start({facingMode:"environment"},{fps:10,qrbox:200},
- msg=>{
-   scanId.value=msg;
-   scan();
-   stopScanner();
- });
+/* 4. CAMERA SCANNER */
+let html5QrCode;
+function toggleScanner() {
+    const btn = document.getElementById("camBtn");
+    if(!html5QrCode || !html5QrCode.isScanning) {
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            (decodedText) => {
+                document.getElementById("scanId").value = decodedText;
+                scan();
+                toggleScanner(); // Stop after success
+            }
+        ).then(() => {
+            btn.innerText = "STOP CAMERA";
+            btn.classList.add("stop");
+        });
+    } else {
+        html5QrCode.stop().then(() => {
+            btn.innerText = "START CAMERA SCANNER";
+            btn.classList.remove("stop");
+            document.getElementById("reader").innerHTML = "";
+        });
+    }
 }
-function stopScanner(){ if(scanner) scanner.stop(); }
 
-/* PROFILE */
-function openProfile(){
- let html=`<p><b>ID:</b> ${user.id}</p><p><b>Name:</b> ${user.name}</p>`;
- Object.entries(user).forEach(([k,v])=>{
-   if(k!="id" && k!="name" && v){
-     html+=`<p><b>${k}:</b> ${v}</p>`;
-   }
- });
- profileData.innerHTML=html;
- profile.style.display="flex";
+/* 5. PROFILE & UTILS */
+function openProfile() {
+    let html = `<p><b>Name:</b> ${user.name}</p>
+                <p><b>ID:</b> ${user.id}</p>
+                <p><b>Course:</b> ${user.course}</p>
+                <p><b>Access Level:</b> ${userLevel}</p>`;
+    document.getElementById("profileData").innerHTML = html;
+    document.getElementById("profile").style.display = "flex";
 }
-function closeProfile(){ profile.style.display="none"; }
+function closeProfile() { document.getElementById("profile").style.display = "none"; }
 
-/* LOGOUT */
-function logout(){
- localStorage.clear();
- location.href="login.html";
+function logout() {
+    localStorage.clear();
+    window.location.href = "login.html";
 }
 </script>
-
 </body>
 </html>
