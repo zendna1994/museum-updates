@@ -1,259 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEN DNA - Pro Scanner</title>
-    <style>
-        :root {
-            --primary: #1e3a8a;
-            --accent: #3b82f6;
-            --success: #059669;
-            --bg-dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.95);
-        }
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MUSEUM DATABASE - PRO</title>
 
-        body {
-            margin: 0; font-family: 'Inter', system-ui, sans-serif;
-            background: var(--bg-dark) url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg') center/cover fixed;
-            color: #1e293b; overflow-x: hidden;
-        }
+<style>
+:root{
+  --primary:#1e3a8a;
+  --accent:#3b82f6;
+  --glass: rgba(255, 255, 255, 0.95);
+}
 
-        /* GLASS HEADER */
-        .header {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px 20px; background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px); color: white; border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
+/* BODY & BACKGROUND */
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+  url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
+  background-size:cover;
+  background-attachment: fixed;
+  user-select: none; /* Security: Disable text selection */
+}
 
-        .user-badge {
-            padding: 4px 10px; border-radius: 20px; font-size: 10px;
-            font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-        }
-        .badge-admin { background: #dc2626; color: white; }
-        .badge-student { background: var(--accent); color: white; }
+/* HEADER */
+.header{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:15px; color:#fff; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+}
+.title h1{margin:0;font-size:18px; letter-spacing: 1px;}
+.title p{margin:0;font-size:11px;color:#ccc;}
+.icons span{margin-left:15px;cursor:pointer;font-size:20px; transition: 0.3s;}
+.icons span:hover { transform: scale(1.2); }
 
-        .main-container { padding: 15px; max-width: 500px; margin: 0 auto; }
+/* MAIN CONTAINER */
+.container{
+  background: var(--glass);
+  margin:15px;
+  border-radius:20px;
+  padding:20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+}
 
-        /* SCANNER BOX */
-        #reader { 
-            width: 100%; border-radius: 20px; overflow: hidden; 
-            border: 2px solid var(--accent); background: #000;
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-        }
+/* INPUTS & BUTTONS */
+input{
+  width:100%; padding:12px; border-radius:10px;
+  border:1px solid #ddd; margin-bottom: 10px; box-sizing: border-box;
+}
+button{
+  width:100%; padding:12px; border:none; border-radius:10px;
+  background:var(--primary); color:#fff; font-weight: bold; cursor:pointer;
+}
 
-        /* PRO SPECIMEN CARD */
-        .specimen-card {
-            background: var(--glass); border-radius: 24px; padding: 20px;
-            margin-top: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative; overflow: hidden;
-        }
+/* SCANNER BOX */
+#reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 2px solid var(--primary); }
 
-        .id-label { font-size: 10px; font-weight: 800; color: #64748b; letter-spacing: 1px; }
-        
-        .specimen-header { display: flex; gap: 15px; align-items: flex-start; margin-bottom: 20px; }
-        .thumb-img { 
-            width: 80px; height: 80px; border-radius: 12px; 
-            object-fit: cover; border: 2px solid #ddd; 
-        }
+/* PRO SPECIMEN DISPLAY */
+.specimen-card {
+  margin-top: 20px; animation: fadeIn 0.5s ease-in;
+}
+.specimen-header { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+.thumb { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; border: 2px solid #eee; }
+.id-tag { font-size: 10px; font-weight: bold; color: var(--primary); background: #e0e7ff; padding: 2px 8px; border-radius: 4px; }
 
-        .section-title {
-            font-size: 11px; font-weight: 900; color: var(--primary);
-            text-transform: uppercase; margin: 15px 0 8px;
-            display: flex; align-items: center; gap: 8px;
-        }
+.label { font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-top: 10px; }
+.scientific { font-style: italic; font-size: 20px; color: #1e293b; margin: 2px 0; }
+.common { font-weight: 600; color: #475569; }
 
-        .nomenclature h2 { margin: 0; font-style: italic; font-size: 20px; color: #1e293b; }
-        .nomenclature p { margin: 0; color: #64748b; font-weight: 600; }
+/* TREE UI */
+.tree { margin-top: 10px; font-family: monospace; font-size: 14px; background: #f8fafc; padding: 10px; border-radius: 10px; }
+.tree-node { display: block; padding: 2px 0; }
 
-        /* CLASSIFICATION TREE */
-        .tree-container { font-family: 'Courier New', monospace; font-size: 13px; line-height: 1.6; }
-        .tree-line { color: #cbd5e1; margin-right: 5px; }
+/* ADMIN OVERRIDE TOGGLE */
+.admin-zone {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 10px; padding: 10px; background: #fef2f2; border-radius: 10px; font-size: 12px;
+}
 
-        /* LOADING SPINNER */
-        .spinner {
-            display: none; margin: 20px auto; width: 40px; height: 40px;
-            border: 4px solid rgba(59, 130, 246, 0.1);
-            border-left-color: var(--accent); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
+/* LOADING SPINNER */
+.loader {
+  display: none; width: 30px; height: 30px; border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--primary); border-radius: 50%;
+  animation: spin 1s linear infinite; margin: 15px auto;
+}
 
-        /* PROFILE CARD (Digital ID) */
-        .digital-id {
-            background: linear-gradient(135deg, #1e3a8a, #1e40af);
-            color: white; border-radius: 20px; padding: 20px; text-align: center;
-        }
-        .qr-card { background: white; padding: 10px; display: inline-block; border-radius: 10px; margin-top: 10px; }
+/* HISTORY TABLE */
+.history-box { max-height: 200px; overflow: auto; margin-top: 10px; border: 1px solid #eee; border-radius: 10px; }
+table { width: 100%; font-size: 12px; border-collapse: collapse; }
+th { background: #f1f5f9; padding: 8px; text-align: left; position: sticky; top:0; }
+td { border-bottom: 1px solid #eee; padding: 8px; }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+/* DIGITAL ID POPUP */
+.profile-popup {
+  position:fixed; inset:0; background:rgba(0,0,0,0.9);
+  display:none; justify-content:center; align-items:center; z-index: 9999;
+}
+.id-card {
+  background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white;
+  padding: 30px; border-radius: 20px; text-align: center; width: 80%; max-width: 300px;
+}
+.qr-holder { background: white; padding: 10px; display: inline-block; border-radius: 10px; margin: 15px 0; }
 
-        /* FOOTER HISTORY */
-        .history-mini { background: rgba(255,255,255,0.1); border-radius: 15px; color: white; padding: 10px; margin-top: 20px; }
-        .history-row { display: flex; justify-content: space-between; font-size: 11px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    </style>
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
 </head>
-<body>
+
+<body oncontextmenu="return false" onkeydown="return disableSecurity(event)">
 
 <div class="header">
-    <div>
-        <h1 style="margin:0; font-size:16px;">ZEN DNA PRO</h1>
-        <div id="roleBadge" class="user-badge">Loading...</div>
-    </div>
-    <div style="display:flex; gap:15px;">
-        <span onclick="openProfile()" style="cursor:pointer">🆔</span>
-        <span onclick="logout()" style="cursor:pointer">🔓</span>
-    </div>
+  <div class="title">
+    <h1>MUSEUM DATABASE</h1>
+    <p id="userDisplay">ZEN - DNA | Loading...</p>
+  </div>
+  <div class="icons">
+    <span onclick="openProfile()">🆔</span>
+    <span onclick="logout()">🔓</span>
+  </div>
 </div>
 
-<div class="main-container">
-    <div id="reader"></div>
-    <div id="scanLoader" class="spinner"></div>
-    
-    <div style="display:flex; gap:10px; margin-top:10px;">
-        <button onclick="startScanner()" style="flex:2; background:var(--accent); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold;">AUTO-SCAN ON</button>
-        <button onclick="stopScanner()" style="flex:1; background:#444; color:white; border:none; border-radius:10px;">OFF</button>
-    </div>
+<div class="container">
 
-    <div id="result"></div>
+  <div id="adminToggle" class="admin-zone" style="display:none;">
+    <span>⚡ Admin Override Mode</span>
+    <input type="checkbox" id="overrideMode" style="width:auto; margin:0;">
+  </div>
 
-    <div class="history-mini">
-        <div style="font-weight:bold; margin-bottom:10px; font-size:12px;">RECENT SCANS</div>
-        <div id="historyRows"></div>
-    </div>
+  <input id="scanId" placeholder="Scan or Enter Specimen ID..." onkeypress="if(event.key==='Enter') scan()">
+  <button onclick="scan()">SEARCH DATABASE</button>
+
+  <div id="reader"></div>
+  <div style="display:flex; gap:10px; margin-top:10px;">
+    <button onclick="startAutoScan()" style="background:var(--accent)">AUTO-SCAN ON</button>
+    <button onclick="stopScanner()" style="background:#64748b">STOP</button>
+  </div>
+
+  <div id="loader" class="loader"></div>
+  <div id="result"></div>
+
+  <h4 style="margin:20px 0 10px;">SCAN HISTORY</h4>
+  <input placeholder="Search history..." oninput="filterHistory(this.value)">
+  <div class="history-box">
+    <table>
+      <thead><tr><th>Date</th><th>ID</th></tr></thead>
+      <tbody id="historyTable"></tbody>
+    </table>
+  </div>
+
 </div>
 
-<div class="profile-popup" id="profilePopup" onclick="closeProfile()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:2000; align-items:center; justify-content:center;">
-    <div class="digital-id" onclick="event.stopPropagation()">
-        <div style="font-size:12px; opacity:0.8;">OFFICIAL DIGITAL ID</div>
-        <h2 id="idName" style="margin:10px 0 5px;">User Name</h2>
-        <div id="idRole" class="user-badge" style="display:inline-block">ROLE</div>
-        <div class="qr-card" id="userQR"></div>
-        <div id="idCode" style="margin-top:10px; font-family:monospace; font-weight:bold;">ID: ---</div>
-        <button onclick="closeProfile()" style="margin-top:20px; background:rgba(255,255,255,0.2); border:none; color:white; padding:8px 20px; border-radius:10px;">CLOSE</button>
-    </div>
+<div class="profile-popup" id="profile">
+  <div class="id-card">
+    <div style="font-size:10px; letter-spacing:2px; opacity:0.8;">OFFICIAL DIGITAL ID</div>
+    <h2 id="idName" style="margin:10px 0;">NAME</h2>
+    <div id="idBadge" style="background:rgba(255,255,255,0.2); padding:4px 12px; border-radius:20px; font-size:12px; display:inline-block;">ROLE</div>
+    <div class="qr-holder" id="qrcode"></div>
+    <div id="idNumber" style="font-family:monospace; font-weight:bold;">ID: ---</div>
+    <button onclick="closeProfile()" style="background:none; border:1px solid white; margin-top:20px;">CLOSE</button>
+  </div>
 </div>
+
+<footer style="text-align:center;color:#ddd; padding-bottom: 20px;">© 2026 ZEN - DNA. PRO MODE</footer>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
-const KEY = "ZEN_DNA_2026";
+const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
+const KEY="ZEN_DNA_2026";
 
-const user = JSON.parse(localStorage.getItem("user"));
-if(!user) location.href = "login.html";
+/* 1. SECURITY & SESSION */
+const user=JSON.parse(localStorage.getItem("user"));
+if(!user){ location.href="login.html"; }
 
-// Initial UI Setup
-document.getElementById("roleBadge").innerText = user.roleName || "User";
-document.getElementById("roleBadge").className = `user-badge badge-${(user.roleName || "").toLowerCase()}`;
+document.getElementById("userDisplay").innerText = `ZEN - DNA | ${user.name}`;
+if(user.role >= 2) document.getElementById("adminToggle").style.display = "flex";
 
+function disableSecurity(e) {
+  if(e.ctrlKey && (e.key==='u' || e.key==='s' || e.key==='i' || e.key==='j')) return false;
+}
+
+/* 2. SCANNING ENGINE */
 let html5QrCode;
 
-function startScanner() {
-    html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 20, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-            // AUTO SCAN TRIGGER
-            fetchSpecimen(decodedText);
-            // Optional: Vibrate on success
-            if(window.navigator.vibrate) window.navigator.vibrate(100);
-        }
-    );
+function startAutoScan() {
+  html5QrCode = new Html5Qrcode("reader");
+  html5QrCode.start({facingMode:"environment"}, {fps:20, qrbox:250}, 
+  msg => {
+    document.getElementById("scanId").value = msg;
+    scan();
+    if(window.navigator.vibrate) window.navigator.vibrate(100);
+  });
 }
 
-function stopScanner() {
-    if(html5QrCode) html5QrCode.stop().then(() => document.getElementById("reader").innerHTML = "");
-}
+function stopScanner() { if(html5QrCode) html5QrCode.stop().then(()=>document.getElementById("reader").innerHTML=""); }
 
-async function fetchSpecimen(id) {
-    const loader = document.getElementById("scanLoader");
-    const result = document.getElementById("result");
-    
-    loader.style.display = "block";
-    
-    try {
-        const response = await fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${user.role}&key=${KEY}`);
-        const res = await response.json();
-        
-        loader.style.display = "none";
-        
-        if(res.status === "restricted") {
-            result.innerHTML = `<div class="specimen-card" style="border-left:5px solid #dc2626"><h3>⚠️ Restricted</h3><p>Higher access level required.</p></div>`;
-            return;
-        }
+function scan(){
+  const id=document.getElementById("scanId").value.trim();
+  const loader=document.getElementById("loader");
+  const result=document.getElementById("result");
+  const isAdminOverride = document.getElementById("overrideMode").checked;
 
-        const d = res.data;
-        const imgId = d.Image?.match(/[-\w]{25,}/);
-        const imgSrc = imgId ? `https://drive.google.com/uc?export=view&id=${imgId[0]}` : "";
+  if(!id) return;
+  loader.style.display="block";
+  result.innerHTML="";
 
-        result.innerHTML = `
-            <div class="specimen-card">
-                <div class="id-label">UNIQUE ID: ${id}</div>
-                <div class="specimen-header">
-                    ${imgSrc ? `<img src="${imgSrc}" class="thumb-img">` : ''}
-                    <div class="nomenclature">
-                        <div class="section-title">Nomenclature</div>
-                        <h2>${d.Scientific_Name}</h2>
-                        <p>${d.Common_Name}</p>
-                    </div>
-                </div>
+  // Force level 2 if override is ON
+  const effectiveLevel = isAdminOverride ? 2 : user.role;
 
-                <div class="section-title">🌍 Classification Hierarchy</div>
-                <div class="tree-container">
-                    <div>Animalia</div>
-                    <div><span class="tree-line">└──</span>🧬 ${d.Phylum}</div>
-                    <div><span class="tree-line">&nbsp;&nbsp;&nbsp;└──</span>🐾 ${d.Class}</div>
-                </div>
-
-                <div class="section-title">📄 Digital Notes</div>
-                <div style="font-size:12px; color:#475569;">Specimen verified via ZEN-DNA protocol. Check PDF for morphological details.</div>
-                
-                ${d.Pdf ? `<iframe src="https://drive.google.com/file/d/${d.Pdf.match(/[-\w]{25,}/)[0]}/preview" style="width:100%; height:300px; border:none; margin-top:15px; border-radius:10px;"></iframe>` : ''}
-            </div>
-        `;
-        loadHistory();
-    } catch(e) {
-        loader.style.display = "none";
-        console.error(e);
+  fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${effectiveLevel}&key=${KEY}`)
+  .then(r=>r.json())
+  .then(res=>{
+    loader.style.display="none";
+    if(res.status==="restricted"){
+      result.innerHTML="<div class='specimen-card' style='color:red; text-align:center;'>⛔ ACCESS RESTRICTED</div>";
+      return;
     }
+    if(res.status==="not_found"){
+      result.innerHTML="<p style='text-align:center'>ID not recognized</p>";
+      return;
+    }
+
+    const d=res.data;
+    const imgId=d.Image?.match(/[-\w]{25,}/);
+    const imgSrc=imgId?`https://drive.google.com/uc?export=view&id=${imgId[0]}`:"";
+
+    result.innerHTML=`
+      <div class="specimen-card">
+        <div class="specimen-header">
+           ${imgSrc ? `<img src="${imgSrc}" class="thumb">` : ''}
+           <div>
+              <div class="id-tag">UID: ${id}</div>
+              <div class="label">Nomenclature</div>
+              <h2 class="scientific">${d.Scientific_Name}</h2>
+              <div class="common">${d.Common_Name}</div>
+           </div>
+        </div>
+
+        <div class="label">🌍 Classification Hierarchy</div>
+        <div class="tree">
+           <span class="tree-node">Animalia</span>
+           <span class="tree-node"> └── 🧬 ${d.Phylum}</span>
+           <span class="tree-node">&nbsp;&nbsp;&nbsp;&nbsp; └── 🐾 ${d.Class}</span>
+        </div>
+
+        <div class="label">📝 Researcher Notes</div>
+        <p style="font-size:12px; color:#666;">Specimen verification successful. Digital record synced.</p>
+
+        ${d.Pdf ? `<iframe src="https://drive.google.com/file/d/${d.Pdf.match(/[-\w]{25,}/)[0]}/preview" style="width:100%;height:300px;border:none;border-radius:10px;margin-top:10px;"></iframe>` : ''}
+      </div>
+    `;
+    loadHistory();
+  });
 }
 
-function loadHistory() {
-    fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
-    .then(r => r.json())
-    .then(res => {
-        let html = "";
-        res.data.slice(-5).reverse().forEach(d => {
-            html += `
-            <div class="history-row">
-                <span>${d.date.split(' ')[0]}</span>
-                <span style="font-weight:bold">${d.id}</span>
-            </div>`;
-        });
-        document.getElementById("historyRows").innerHTML = html;
+/* 3. HISTORY & PROFILE */
+function loadHistory(){
+  fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
+  .then(r=>r.json())
+  .then(res=>{
+    let html="";
+    res.data.reverse().forEach(d=>{
+      html+=`<tr><td>${d.date}</td><td><b>${d.id}</b></td></tr>`;
     });
+    document.getElementById("historyTable").innerHTML=html;
+  });
 }
 
-function openProfile() {
-    document.getElementById("idName").innerText = user.name.toUpperCase();
-    document.getElementById("idRole").innerText = user.roleName;
-    document.getElementById("idCode").innerText = `ID: ${user.id}`;
-    
-    const qrDiv = document.getElementById("userQR");
-    qrDiv.innerHTML = "";
-    new QRCode(qrDiv, { text: user.id, width: 128, height: 128 });
-    
-    document.getElementById("profilePopup").style.display = "flex";
+function filterHistory(v){
+  v=v.toLowerCase();
+  document.querySelectorAll("#historyTable tr").forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(v)?"":"none";
+  });
 }
 
-function closeProfile() { document.getElementById("profilePopup").style.display = "none"; }
-function logout() { localStorage.clear(); location.href="login.html"; }
+function openProfile(){
+  document.getElementById("idName").innerText = user.name.toUpperCase();
+  document.getElementById("idBadge").innerText = user.roleName || "USER";
+  document.getElementById("idNumber").innerText = `ID: ${user.id}`;
+  const qrDiv = document.getElementById("qrcode");
+  qrDiv.innerHTML = "";
+  new QRCode(qrDiv, { text: user.id, width: 120, height: 120 });
+  document.getElementById("profile").style.display="flex";
+}
+
+function closeProfile(){ document.getElementById("profile").style.display="none"; }
+
+function logout(){ localStorage.clear(); location.href="login.html"; }
 
 loadHistory();
-startScanner(); // Auto-start on load
 </script>
+
 </body>
 </html>
