@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ZEN DNA | Curator Scanner</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
@@ -10,10 +10,10 @@
 
     <style>
         :root {
-            --museum-dark: #002147; /* Oxford Blue */
-            --museum-gold: #a68a56; /* Brass/Gold accent */
-            --museum-ivory: #fdfcf8; /* Paper/Parchment */
-            --museum-green: #1b3022; /* Deep Forest */
+            --museum-dark: #002147;
+            --museum-gold: #a68a56;
+            --museum-ivory: #fdfcf8;
+            --museum-green: #1b3022;
             --text-main: #2c3e50;
             --shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
@@ -24,10 +24,10 @@
             color: var(--text-main);
             margin: 0; 
             background-image: radial-gradient(#e5e2d9 1px, transparent 1px);
-            background-size: 20px 20px; /* Subtle grid paper texture */
+            background-size: 20px 20px;
+            user-select: none;
         }
 
-        /* --- Header & Container --- */
         .container { max-width: 600px; margin: auto; padding: 20px; }
         
         .header { 
@@ -41,11 +41,10 @@
             letter-spacing: 1px; margin: 0; color: var(--museum-dark); 
         }
 
-        /* --- Cards & UI Elements --- */
         .card { 
             background: white; padding: 25px; border-radius: 16px; 
             box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);
-            transition: transform 0.3s ease;
+            margin-bottom: 20px;
         }
 
         button { 
@@ -58,59 +57,50 @@
 
         button:hover { background: var(--museum-green); transform: translateY(-1px); }
         
-        .admin-btn { background: var(--museum-gold); color: white; }
+        .admin-btn { background: var(--museum-gold); color: white; font-size: 11px; padding: 8px 12px; }
 
         input { 
             padding: 14px; border: 2px solid #eee; border-radius: 8px; 
             width: 100%; margin: 15px 0 10px 0; box-sizing: border-box;
-            font-size: 16px; outline: none; transition: border-color 0.3s;
+            font-size: 16px; outline: none;
         }
-        input:focus { border-color: var(--museum-gold); }
 
         #reader { 
             width: 100%; border-radius: 12px; overflow: hidden; 
             margin: 15px 0; border: 3px solid var(--museum-dark);
         }
 
-        /* --- Result Section --- */
-        #result { margin-top: 25px; animation: fadeIn 0.5s ease; }
+        #result { display: none; margin-top: 25px; animation: fadeIn 0.5s ease; }
         #img { width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: var(--shadow); }
         .specimen-title { font-family: 'Playfair Display', serif; font-size: 24px; margin: 15px 0 5px 0; }
         .taxonomy-tag { 
-            display: inline-block; padding: 4px 12px; background: #f0f0f0; 
-            border-radius: 20px; font-size: 12px; color: #666; margin-top: 5px;
+            display: inline-block; padding: 4px 12px; background: var(--museum-dark); 
+            border-radius: 4px; font-size: 11px; color: white; margin-top: 5px;
         }
 
-        /* --- Loading DNA Animation --- */
-        #loader { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 2000;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-
-        .dna-spinner {
-            width: 40px; height: 40px; border: 4px solid var(--museum-gold);
-            border-top: 4px solid transparent; border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- Profile Modal --- */
+        /* Modal & Loader */
+        .overlay { display: none; position: fixed; width: 100%; height: 100%; background: rgba(0,33,71,0.6); top: 0; left: 0; z-index: 1000; backdrop-filter: blur(4px); }
         #profile {
             display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             background: white; padding: 30px; border-radius: 20px; z-index: 1001; 
             width: 85%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
         }
-        .overlay { display: none; position: fixed; width: 100%; height: 100%; background: rgba(0,33,71,0.6); top: 0; left: 0; z-index: 1000; backdrop-filter: blur(4px); }
-        
-        .label { color: #999; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .value { font-weight: 600; color: var(--museum-dark); font-size: 16px; }
 
+        #loader { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9); z-index: 2000;
+            flex-direction: column; align-items: center; justify-content: center;
+        }
+        .dna-spinner { width: 40px; height: 40px; border: 4px solid var(--museum-gold); border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+
+        .label { color: #999; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+        .value { font-weight: 600; color: var(--museum-dark); font-size: 15px; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
 <div class="overlay" id="overlay" onclick="closeProfile()"></div>
 
@@ -122,80 +112,80 @@
 <div class="container">
     <div class="header">
         <h3>ZEN DNA <span style="font-weight:100; color:var(--museum-gold)">| SCANNER</span></h3>
-        <div style="display:flex; gap:8px">
-            <button onclick="showProfile()" style="background:none; color:var(--museum-dark); border:1px solid #ccc">👤</button>
-            <button id="adminBtn" class="admin-btn" onclick="goAdmin()" style="display:none">Admin</button>
+        <div style="display:flex; gap:8px; align-items: center;">
+            <button onclick="showProfile()" style="background:none; color:var(--museum-dark); border:1px solid #ccc; padding: 8px;">👤</button>
+            <button id="adminBtn" class="admin-btn" onclick="goAdmin()" style="display:none">ADMIN</button>
         </div>
     </div>
 
     <div class="card">
-        <button onclick="startScanner()" style="width:100%; background: var(--museum-green);">
+        <button onclick="startScanner()" style="width:100%; background: var(--museum-green); padding: 18px;">
             <span>📷</span> INITIALIZE SCANNER
         </button>
         
         <div id="reader"></div>
 
-        <div style="text-align: center; margin: 15px 0; color: #ccc; font-size: 12px;">OR MANUALLY ENTER ACCESSION ID</div>
+        <div style="text-align: center; margin: 15px 0; color: #bbb; font-size: 11px; letter-spacing: 1px;">ARCHIVAL SEARCH</div>
 
-        <input id="manual" placeholder="e.g. ZOO-2026-001">
-        <button onclick="manualSearch()" style="width:100%">SEARCH ARCHIVES</button>
+        <input id="manual" placeholder="Accession ID (e.g. ZOO-001)">
+        <button onclick="manualSearch()" style="width:100%">FETCH DATA</button>
 
-        <div id="result" style="display:none">
-            <img id="img" alt="Specimen Image">
+        <div id="result">
+            <img id="img">
             <div class="taxonomy-tag" id="uid"></div>
             <h3 id="sci" class="specimen-title"></h3>
             <p id="com" style="margin:0; font-style: italic; color: #555;"></p>
             
-            <div id="tree" style="margin: 15px 0; padding: 12px; background: #f9f9f9; border-left: 3px solid var(--museum-gold); font-size: 13px;"></div>
+            <div id="tree" style="margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid var(--museum-gold); font-size: 13px; line-height: 1.6;"></div>
             
             <p class="label">Digital Monograph</p>
-            <iframe id="pdf" width="100%" height="350" style="border:1px solid #eee; border-radius:8px"></iframe>
+            <iframe id="pdf" width="100%" height="400" style="border:1px solid #eee; border-radius:8px"></iframe>
         </div>
     </div>
 </div>
 
 <div id="profile">
-    <h3 style="margin-bottom:20px; text-align:center">Curator Identity</h3>
+    <h3 style="margin-bottom:20px; text-align:center; border-bottom: 1px solid #eee; padding-bottom: 10px;">CURATOR IDENTITY</h3>
     <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div><span class="label">Full Name</span><br><span id="pname" class="value"></span></div>
-        <div><span class="label">Staff ID</span><br><span id="pid" class="value"></span></div>
-        <div style="grid-column: span 2;"><span class="label">Secure Email</span><br><span id="pemail" class="value"></span></div>
-        <div><span class="label">Access Level</span><br><span id="prole" class="value"></span></div>
-        <div><span class="label">Department</span><br><span id="pdept" class="value"></span></div>
+        <div style="grid-column: span 2;"><div class="label">Full Name</div><div id="pname" class="value"></div></div>
+        <div><div class="label">Staff ID</div><div id="pid" class="value"></div></div>
+        <div><div class="label">Access Level</div><div id="prole" class="value"></div></div>
+        <div style="grid-column: span 2;"><div class="label">Institutional Email</div><div id="pemail" class="value"></div></div>
+        <div style="grid-column: span 2;"><div class="label">Department</div><div id="pdept" class="value"></div></div>
     </div>
 
     <div style="margin-top:25px; display:flex; gap:10px">
-        <button onclick="logout()" style="background:#e74c3c; flex:1">Logout</button>
+        <button onclick="logout()" style="background:#c0392b; flex:1">Logout</button>
         <button onclick="closeProfile()" style="background:#95a5a6; flex:1">Close</button>
     </div>
 </div>
 
 <script>
-// --- Core Logic (Unchanged as per instructions) ---
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
+// 🔐 SESSION CHECK
 let user = JSON.parse(localStorage.getItem("user"));
 if(!user) window.location="login.html";
 
+// 🛠 FORCE NUMERIC ROLE CHECK FOR ADMIN BUTTON
 if(Number(user.role) === 2){
     document.getElementById("adminBtn").style.display="inline-block";
 }
 
-function toggleLoading(s){
-    document.getElementById("loader").style.display = s ? "flex":"none";
-}
+function toggleLoading(s){ document.getElementById("loader").style.display = s ? "flex":"none"; }
 
 function search(id){
     if(!id) return;
     toggleLoading(true);
 
-    fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${user.role}&userId=${user.id}&key=${KEY}`)
+    // Pass role as a number to prevent string-comparison bugs in Apps Script
+    fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${Number(user.role)}&userId=${user.id}&key=${KEY}`)
     .then(r=>r.json())
     .then(res=>{
         toggleLoading(false);
         if(res.status !== "success"){
-            alert("Specimen Not Found or Restricted Access.");
+            alert("ACCESS DENIED: Insufficient permissions or specimen not found.");
             return;
         }
 
@@ -205,40 +195,38 @@ function search(id){
         document.getElementById("sci").innerText=s.Scientific_Name;
         document.getElementById("com").innerText=s.Common_Name;
 
-        // Image & PDF Handlers
+        // Image & PDF Handlers (Safe parsing)
         try {
-            document.getElementById("img").src="https://drive.google.com/thumbnail?id="+s.Image.split("/d/")[1].split("/")[0];
-            document.getElementById("pdf").src="https://drive.google.com/file/d/"+s.Pdf.split("/d/")[1].split("/")[0]+"/preview";
-        } catch(e) { console.log("Media parsing error"); }
+            let imgId = s.Image.split("/d/")[1].split("/")[0];
+            let pdfId = s.Pdf.split("/d/")[1].split("/")[0];
+            document.getElementById("img").src="https://drive.google.com/thumbnail?id="+imgId+"&sz=w1000";
+            document.getElementById("pdf").src="https://drive.google.com/file/d/"+pdfId+"/preview";
+        } catch(e) { console.log("Media Link Error: Ensure Google Drive links are 'Anyone with link' and in /file/d/ format."); }
 
         document.getElementById("tree").innerHTML=`<b>Classification Hierarchy:</b><br>${s.Phylum} &rarr; ${s.Class} &rarr; ${s.Order}`;
-        
-        // Auto-scroll to result
         document.getElementById("result").scrollIntoView({ behavior: 'smooth' });
     })
-    .catch(()=>{ toggleLoading(false); alert("Connection Error"); });
+    .catch(()=>{ toggleLoading(false); alert("Critical Connection Error."); });
 }
 
-function manualSearch(){
-    search(document.getElementById("manual").value.trim());
-}
+function manualSearch(){ search(document.getElementById("manual").value.trim()); }
 
 function startScanner(){
     let sc=new Html5Qrcode("reader");
     sc.start({facingMode:"environment"},{fps:10,qrbox:250},txt=>{
         sc.stop();
         search(txt);
-    }).catch(err => alert("Camera access denied or error."));
+    }).catch(err => alert("Camera blocked. Please allow camera access."));
 }
 
 function showProfile(){
-    document.getElementById("overlay").style.display="block";
-    document.getElementById("profile").style.display="block";
     document.getElementById("pname").innerText=user.name;
     document.getElementById("pid").innerText=user.id;
     document.getElementById("pemail").innerText=user.email;
-    document.getElementById("prole").innerText=user.roleName || user.role;
-    document.getElementById("pdept").innerText=(user.course||"")+" "+(user.year||"");
+    document.getElementById("prole").innerText="Level " + user.role;
+    document.getElementById("pdept").innerText=(user.course||"Zoology")+" "+(user.year||"");
+    document.getElementById("overlay").style.display="block";
+    document.getElementById("profile").style.display="block";
 }
 
 function closeProfile(){
@@ -246,14 +234,10 @@ function closeProfile(){
     document.getElementById("profile").style.display="none";
 }
 
-function logout(){
-    localStorage.clear();
-    window.location="login.html";
-}
+function logout(){ localStorage.clear(); window.location="login.html"; }
+function goAdmin(){ window.location="admin.html"; }
 
-function goAdmin(){
-    window.location="admin.html";
-}
+document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 
 </body>
