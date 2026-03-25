@@ -258,7 +258,8 @@ function login() {
 
       localStorage.setItem("user", JSON.stringify(res));
 
-      const level = parseInt(res.userLevel || 0);
+      // UPDATED: Changed 'res.userLevel' to 'res.role' to match Apps Script
+      const level = parseInt(res.role || 0);
 
       if (level === 2) {
         document.getElementById("loginForm").style.display = "none";
