@@ -127,9 +127,21 @@
   button:active { transform: scale(0.98); }
   button:disabled { background: #64748b; cursor: not-allowed; }
 
-  #adminSelection { display: none; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px; }
+  #adminSelection {
+    display: none;
+    margin-top: 20px;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
   .selection-btn { background: var(--secondary); margin-bottom: 10px; }
   .dashboard-btn { background: #111827; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 
   .spinner {
     display: none;
@@ -141,9 +153,9 @@
     animation: spin 0.8s linear infinite;
   }
 
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
 
-  #msg { margin-top: 12px; font-weight: 600; color: #dc2626; font-size: 11px; min-height: 15px; line-height: 1.3; }
+  #msg { margin-top: 12px; font-weight: 600; color: #dc2626; font-size: 11px; min-height: 15px; }
 
   footer {
     margin-top: 20px;
@@ -163,10 +175,10 @@
 
   <div class="logo-section">
     <a href="https://www.loyolacollege.edu" target="_blank">
-      <img src="https://upload.wikimedia.org/wikipedia/en/1/13/Loyola_College_Chennai_-_Coat_of_arms.png" alt="Loyola">
+      <img src="https://upload.wikimedia.org/wikipedia/en/1/13/Loyola_College_Chennai_-_Coat_of_arms.png">
     </a>
     <a href="https://azbtweb.wixsite.com/zen-dna" target="_blank">
-      <img src="https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png" alt="ZEN DNA">
+      <img src="https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png">
     </a>
   </div>
 
@@ -175,16 +187,17 @@
     Loyola College (Autonomous), Chennai - 34.
   </div>
 
+  <!-- LOGIN -->
   <div id="loginForm">
     <h2>MUSEUM DATABASE</h2>
     <h4>ZOOLOGY - E-LEARNING NETWORK,<br>DEPARTMENT NURTURING ACADEMICS.</h4>
 
     <div class="input-group">
-      <input id="id" placeholder="User ID" autocomplete="username">
+      <input id="id" placeholder="User ID">
     </div>
 
     <div class="input-group">
-      <input id="pass" type="password" placeholder="Password" autocomplete="current-password">
+      <input id="pass" type="password" placeholder="Password">
       <span class="show-pass" onclick="togglePass()">SHOW</span>
     </div>
 
@@ -194,16 +207,17 @@
     </button>
   </div>
 
+  <!-- ADMIN OPTIONS -->
   <div id="adminSelection">
     <h2 style="border:none;">WELCOME, <span id="adminName"></span></h2>
-    <p style="font-size: 11px; margin-bottom: 20px;">Please select your destination:</p>
-    <button class="selection-btn" onclick="goTo('scanner.html')">OPEN SCANNER</button>
-    <button class="selection-btn dashboard-btn" onclick="goTo('admin.html')">OPEN DASHBOARD</button>
+    <p style="font-size: 11px; margin-bottom: 20px;">Select your destination:</p>
+    <button class="selection-btn" onclick="goTo('scanner.html')">SCANNER</button>
+    <button class="selection-btn dashboard-btn" onclick="goTo('admin.html')">DASHBOARD</button>
   </div>
 
   <p id="msg"></p>
 
-  <footer>&copy; 2026 ZEN - DNA. All rights reserved. </footer>
+  <footer>&copy; 2026 ZEN - DNA. All rights reserved.</footer>
 </div>
 
 <script>
@@ -211,15 +225,8 @@ const API = "https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4
 const KEY = "ZEN_DNA_2026";
 
 function togglePass() {
-  const passInput = document.getElementById("pass");
-  const btn = document.querySelector(".show-pass");
-  if (passInput.type === "password") {
-    passInput.type = "text";
-    btn.innerText = "HIDE";
-  } else {
-    passInput.type = "password";
-    btn.innerText = "SHOW";
-  }
+  const p = document.getElementById("pass");
+  p.type = p.type === "password" ? "text" : "password";
 }
 
 function login() {
@@ -228,56 +235,56 @@ function login() {
   const msg = document.getElementById("msg");
   const loader = document.getElementById("loader");
   const btnText = document.getElementById("btnText");
-  const loginBtn = document.getElementById("loginBtn");
+  const btn = document.getElementById("loginBtn");
 
-  if(!id || !pass) {
-    msg.innerText = "Error: ID and Password required";
+  if (!id || !pass) {
+    msg.innerText = "Enter ID and Password";
     return;
   }
 
-  // UPDATED: Show Verifying Status
   loader.style.display = "block";
-  btnText.innerText = "VERIFYING CREDENTIALS...";
-  loginBtn.disabled = true;
-  msg.innerText = "";
+  btnText.innerText = "VERIFYING CREDENTIALS ...";
+  btn.disabled = true;
 
   fetch(`${API}?action=login&id=${id}&password=${pass}&key=${KEY}`)
-  .then(res => res.json())
+  .then(r => r.json())
   .then(res => {
-    // Reset Button State
+
     loader.style.display = "none";
     btnText.innerText = "LOGIN";
-    loginBtn.disabled = false;
+    btn.disabled = false;
 
     if (res.status === "success") {
-        // Store the entire object which now includes the numeric role
-        localStorage.setItem("user", JSON.stringify(res)); 
-        window.location.href = "scanner.html";
-  
-      if (parseInt(res.role) === 2) {
+
+      localStorage.setItem("user", JSON.stringify(res));
+
+      const level = parseInt(res.userLevel || 0);
+
+      if (level === 2) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("adminSelection").style.display = "block";
-        document.getElementById("adminName").innerText = res.name.split(' ')[0].toUpperCase();
+        document.getElementById("adminName").innerText =
+          res.name.split(" ")[0].toUpperCase();
       } else {
-        window.location = "scanner.html";
+        window.location.href = "scanner.html";
       }
-      
+
     } else if (res.status === "not_approved") {
-      msg.innerText = "Access Denied: Pending Approval, Contact admin: zendna1994@gmail.com";
+      msg.innerText = "Access pending approval";
     } else {
-      msg.innerText = "Invalid Login, Contact admin: zendna1994@gmail.com";
+      msg.innerText = "Invalid credentials";
     }
   })
-  .catch(err => {
+  .catch(() => {
     loader.style.display = "none";
     btnText.innerText = "LOGIN";
-    loginBtn.disabled = false;
-    msg.innerText = "Server Error. Please try again.";
+    btn.disabled = false;
+    msg.innerText = "Server error";
   });
 }
 
 function goTo(page) {
-  window.location = page;
+  window.location.href = page;
 }
 </script>
 
