@@ -156,8 +156,8 @@ const userLevel=parseInt(user.role);
 /* SCAN */
 function scan(){
  const id=document.getElementById("scanId").value;
-
- fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${userLevel}&key=${KEY}`)
+const currentRole = user.role || 0;
+fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${currentRole}&key=${KEY}`)
  .then(r=>r.json())
  .then(res=>{
    if(res.status==="restricted"){
