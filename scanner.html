@@ -1,243 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEN DNA | Curator Scanner</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/html5-qrcode"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUSEUM DATABASE</title>
 
-    <style>
-        :root {
-            --museum-dark: #002147;
-            --museum-gold: #a68a56;
-            --museum-ivory: #fdfcf8;
-            --museum-green: #1b3022;
-            --text-main: #2c3e50;
-            --shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
+<style>
+:root{
+  --primary:#1e3a8a;
+  --secondary:#065f46;
+}
 
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--museum-ivory); 
-            color: var(--text-main);
-            margin: 0; 
-            background-image: radial-gradient(#e5e2d9 1px, transparent 1px);
-            background-size: 20px 20px;
-            user-select: none;
-        }
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+  url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
+  background-size:cover;
+  color:#111;
+}
 
-        .container { max-width: 600px; margin: auto; padding: 20px; }
-        
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 20px 0; border-bottom: 2px solid var(--museum-dark);
-            margin-bottom: 25px;
-        }
+/* HEADER */
+.header{
+  text-align:center;
+  color:#fff;
+  padding:15px;
+}
+.header h1{margin:0;font-size:18px;}
+.header p{margin:2px;font-size:11px;color:#ddd;}
 
-        h3 { 
-            font-family: 'Playfair Display', serif; 
-            letter-spacing: 1px; margin: 0; color: var(--museum-dark); 
-        }
+/* MAIN CARD */
+.container{
+  background:#fff;
+  margin:10px;
+  border-radius:15px;
+  padding:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.5);
+}
 
-        .card { 
-            background: white; padding: 25px; border-radius: 16px; 
-            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
+/* INPUT */
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
+}
 
-        button { 
-            padding: 14px; border: none; border-radius: 8px; 
-            background: var(--museum-dark); color: white; 
-            cursor: pointer; font-weight: 600; font-size: 14px;
-            transition: all 0.2s ease;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:#fff;
+  font-weight:700;
+}
 
-        button:hover { background: var(--museum-green); transform: translateY(-1px); }
-        
-        .admin-btn { background: var(--museum-gold); color: white; font-size: 11px; padding: 8px 12px; }
+/* IMAGE */
+.specimen-img{
+  width:100%;
+  border-radius:10px;
+  margin-top:10px;
+  object-fit:cover;
+}
 
-        input { 
-            padding: 14px; border: 2px solid #eee; border-radius: 8px; 
-            width: 100%; margin: 15px 0 10px 0; box-sizing: border-box;
-            font-size: 16px; outline: none;
-        }
+/* TEXT */
+.scientific{font-style:italic;font-size:16px;}
+.common{font-weight:700;margin-top:3px;}
 
-        #reader { 
-            width: 100%; border-radius: 12px; overflow: hidden; 
-            margin: 15px 0; border: 3px solid var(--museum-dark);
-        }
+/* 🌳 NEW TREE DESIGN */
+.tree {
+  margin-top:15px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
 
-        #result { display: none; margin-top: 25px; animation: fadeIn 0.5s ease; }
-        #img { width: 100%; border-radius: 12px; border: 4px solid white; box-shadow: var(--shadow); }
-        .specimen-title { font-family: 'Playfair Display', serif; font-size: 24px; margin: 15px 0 5px 0; }
-        .taxonomy-tag { 
-            display: inline-block; padding: 4px 12px; background: var(--museum-dark); 
-            border-radius: 4px; font-size: 11px; color: white; margin-top: 5px;
-        }
+.node {
+  background:#f9fafb;
+  border-left:4px solid var(--primary);
+  padding:10px 15px;
+  border-radius:10px;
+  width:80%;
+  text-align:center;
+  box-shadow:0 5px 10px rgba(0,0,0,0.1);
+  margin:5px 0;
+  font-size:13px;
+}
 
-        /* Modal & Loader */
-        .overlay { display: none; position: fixed; width: 100%; height: 100%; background: rgba(0,33,71,0.6); top: 0; left: 0; z-index: 1000; backdrop-filter: blur(4px); }
-        #profile {
-            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background: white; padding: 30px; border-radius: 20px; z-index: 1001; 
-            width: 85%; max-width: 380px; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
+.line {
+  width:2px;
+  height:15px;
+  background:#ccc;
+}
 
-        #loader { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255,255,255,0.9); z-index: 2000;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .dna-spinner { width: 40px; height: 40px; border: 4px solid var(--museum-gold); border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
+/* HISTORY */
+.history{
+  max-height:150px;
+  overflow:auto;
+  margin-top:10px;
+}
 
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+table{
+  width:100%;
+  font-size:11px;
+  border-collapse:collapse;
+}
+td{border-bottom:1px solid #ddd;padding:5px;}
 
-        .label { color: #999; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
-        .value { font-weight: 600; color: var(--museum-dark); font-size: 15px; }
-    </style>
+/* PROFILE */
+.profile-popup{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+
+.profile-box{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+  max-width:350px;
+  position:relative;
+  overflow:hidden;
+}
+
+.profile-box::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png') center/200px no-repeat;
+  opacity:0.05;
+}
+
+.close{
+  position:absolute;
+  right:10px;
+  top:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;
+  font-size:11px;
+  color:#ddd;
+  margin:10px;
+}
+</style>
 </head>
-<body oncontextmenu="return false;">
 
-<div class="overlay" id="overlay" onclick="closeProfile()"></div>
+<body oncontextmenu="return false">
 
-<div id="loader">
-    <div class="dna-spinner"></div>
-    <p style="margin-top:15px; font-family:'Playfair Display'; color:var(--museum-dark)">Consulting Archives...</p>
+<div class="header">
+  <h1>MUSEUM DATABASE</h1>
+  <p>ZEN - DNA</p>
 </div>
 
 <div class="container">
-    <div class="header">
-        <h3>ZEN DNA <span style="font-weight:100; color:var(--museum-gold)">| SCANNER</span></h3>
-        <div style="display:flex; gap:8px; align-items: center;">
-            <button onclick="showProfile()" style="background:none; color:var(--museum-dark); border:1px solid #ccc; padding: 8px;">👤</button>
-            <button id="adminBtn" class="admin-btn" onclick="goAdmin()" style="display:none">ADMIN</button>
-        </div>
-    </div>
 
-    <div class="card">
-        <button onclick="startScanner()" style="width:100%; background: var(--museum-green); padding: 18px;">
-            <span>📷</span> INITIALIZE SCANNER
-        </button>
-        
-        <div id="reader"></div>
+<button onclick="openProfile()">PROFILE</button>
 
-        <div style="text-align: center; margin: 15px 0; color: #bbb; font-size: 11px; letter-spacing: 1px;">ARCHIVAL SEARCH</div>
+<input id="scanId" placeholder="Enter / Scan Specimen ID">
+<button onclick="scan()">SCAN</button>
 
-        <input id="manual" placeholder="Accession ID (e.g. ZOO-001)">
-        <button onclick="manualSearch()" style="width:100%">FETCH DATA</button>
+<div id="result"></div>
 
-        <div id="result">
-            <img id="img">
-            <div class="taxonomy-tag" id="uid"></div>
-            <h3 id="sci" class="specimen-title"></h3>
-            <p id="com" style="margin:0; font-style: italic; color: #555;"></p>
-            
-            <div id="tree" style="margin: 15px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid var(--museum-gold); font-size: 13px; line-height: 1.6;"></div>
-            
-            <p class="label">Digital Monograph</p>
-            <iframe id="pdf" width="100%" height="400" style="border:1px solid #eee; border-radius:8px"></iframe>
-        </div>
-    </div>
+<h4>HISTORY</h4>
+<input placeholder="Search..." oninput="filterHistory(this.value)">
+<div class="history">
+  <table id="historyTable"></table>
 </div>
 
-<div id="profile">
-    <h3 style="margin-bottom:20px; text-align:center; border-bottom: 1px solid #eee; padding-bottom: 10px;">CURATOR IDENTITY</h3>
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-        <div style="grid-column: span 2;"><div class="label">Full Name</div><div id="pname" class="value"></div></div>
-        <div><div class="label">Staff ID</div><div id="pid" class="value"></div></div>
-        <div><div class="label">Access Level</div><div id="prole" class="value"></div></div>
-        <div style="grid-column: span 2;"><div class="label">Institutional Email</div><div id="pemail" class="value"></div></div>
-        <div style="grid-column: span 2;"><div class="label">Department</div><div id="pdept" class="value"></div></div>
-    </div>
-
-    <div style="margin-top:25px; display:flex; gap:10px">
-        <button onclick="logout()" style="background:#c0392b; flex:1">Logout</button>
-        <button onclick="closeProfile()" style="background:#95a5a6; flex:1">Close</button>
-    </div>
 </div>
+
+<!-- PROFILE -->
+<div class="profile-popup" id="profile">
+  <div class="profile-box">
+    <span class="close" onclick="closeProfile()">X</span>
+    <div id="profileData"></div>
+  </div>
+</div>
+
+<footer>© 2026 ZEN - DNA. All rights reserved.</footer>
 
 <script>
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
-// 🔐 SESSION CHECK
-let user = JSON.parse(localStorage.getItem("user"));
-if(!user) window.location="login.html";
-
-// 🛠 FORCE NUMERIC ROLE CHECK FOR ADMIN BUTTON
-if(Number(user.role) === 2){
-    document.getElementById("adminBtn").style.display="inline-block";
+/* 🔐 LOGIN PROTECTION (ADDED) */
+const user=JSON.parse(localStorage.getItem("user"));
+if (!user || !user.id) {
+  alert("Unauthorized Access! Please login.");
+  window.location.href = "login.html";
 }
 
-function toggleLoading(s){ document.getElementById("loader").style.display = s ? "flex":"none"; }
+/* LOAD HISTORY */
+function loadHistory(){
+ fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
+ .then(r=>r.json())
+ .then(res=>{
+   let html="";
+   res.data.forEach(d=>{
+     html+=`<tr><td>${d.date}</td><td>${d.id}</td></tr>`;
+   });
+   document.getElementById("historyTable").innerHTML=html;
+ });
+}
+loadHistory();
 
-function search(id){
-    if(!id) return;
-    toggleLoading(true);
-
-    // Pass role as a number to prevent string-comparison bugs in Apps Script
-    fetch(`${API}?action=scan&id=${id.toUpperCase()}&role=${Number(user.role)}&userId=${user.id}&key=${KEY}`)
-    .then(r=>r.json())
-    .then(res=>{
-        toggleLoading(false);
-        if(res.status !== "success"){
-            alert("ACCESS DENIED: Insufficient permissions or specimen not found.");
-            return;
-        }
-
-        let s=res.data;
-        document.getElementById("result").style.display="block";
-        document.getElementById("uid").innerText="ACCESSION: "+s.Unique_ID;
-        document.getElementById("sci").innerText=s.Scientific_Name;
-        document.getElementById("com").innerText=s.Common_Name;
-
-        // Image & PDF Handlers (Safe parsing)
-        try {
-            let imgId = s.Image.split("/d/")[1].split("/")[0];
-            let pdfId = s.Pdf.split("/d/")[1].split("/")[0];
-            document.getElementById("img").src="https://drive.google.com/thumbnail?id="+imgId+"&sz=w1000";
-            document.getElementById("pdf").src="https://drive.google.com/file/d/"+pdfId+"/preview";
-        } catch(e) { console.log("Media Link Error: Ensure Google Drive links are 'Anyone with link' and in /file/d/ format."); }
-
-        document.getElementById("tree").innerHTML=`<b>Classification Hierarchy:</b><br>${s.Phylum} &rarr; ${s.Class} &rarr; ${s.Order}`;
-        document.getElementById("result").scrollIntoView({ behavior: 'smooth' });
-    })
-    .catch(()=>{ toggleLoading(false); alert("Critical Connection Error."); });
+/* FILTER */
+function filterHistory(val){
+  val=val.toLowerCase();
+  let rows=document.querySelectorAll("#historyTable tr");
+  rows.forEach(r=>{
+    r.style.display=r.innerText.toLowerCase().includes(val)?"":"none";
+  });
 }
 
-function manualSearch(){ search(document.getElementById("manual").value.trim()); }
+/* SCAN */
+function scan(){
+ const id=document.getElementById("scanId").value;
+ fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${user.userLevel}&key=${KEY}`)
+ .then(r=>r.json())
+ .then(res=>{
+   if(res.status==="restricted"){
+     document.getElementById("result").innerHTML="<p style='color:red'>ACCESS DENIED</p>";
+     return;
+   }
+   if(res.status==="not_found"){
+     document.getElementById("result").innerHTML="<p>No specimen found</p>";
+     return;
+   }
 
-function startScanner(){
-    let sc=new Html5Qrcode("reader");
-    sc.start({facingMode:"environment"},{fps:10,qrbox:250},txt=>{
-        sc.stop();
-        search(txt);
-    }).catch(err => alert("Camera blocked. Please allow camera access."));
+   const d=res.data;
+
+   document.getElementById("result").innerHTML=`
+     <div class="scientific">${d.Scientific_Name}</div>
+     <div class="common">${d.Common_Name}</div>
+
+     <img class="specimen-img" src="${d.Image.replace("view?usp=drivesdk","preview")}">
+
+     <!-- 🌳 UPDATED CLASSIFICATION -->
+     <div class="tree">
+       <div class="node">🌍 <b>Kingdom</b><br>Animalia</div>
+       <div class="line"></div>
+       <div class="node">🧬 <b>Phylum</b><br>${d.Phylum}</div>
+       <div class="line"></div>
+       <div class="node">🐾 <b>Class</b><br>${d.Class}</div>
+     </div>
+   `;
+ });
 }
 
-function showProfile(){
-    document.getElementById("pname").innerText=user.name;
-    document.getElementById("pid").innerText=user.id;
-    document.getElementById("pemail").innerText=user.email;
-    document.getElementById("prole").innerText="Level " + user.role;
-    document.getElementById("pdept").innerText=(user.course||"Zoology")+" "+(user.year||"");
-    document.getElementById("overlay").style.display="block";
-    document.getElementById("profile").style.display="block";
+/* PROFILE */
+function openProfile(){
+ let html="";
+ Object.entries(user).forEach(([k,v])=>{
+   if(v) html+=`<p><b>${k}:</b> ${v}</p>`;
+ });
+ document.getElementById("profileData").innerHTML=html;
+ document.getElementById("profile").style.display="flex";
 }
 
 function closeProfile(){
-    document.getElementById("overlay").style.display="none";
-    document.getElementById("profile").style.display="none";
+ document.getElementById("profile").style.display="none";
 }
-
-function logout(){ localStorage.clear(); window.location="login.html"; }
-function goAdmin(){ window.location="admin.html"; }
-
-document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 
 </body>
