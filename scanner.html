@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>ZEN DNA - MUSEUM DATABASE</title>
+<title>MUSEUM DATABASE</title>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@1,600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Playfair+Display:ital,wght@0,400;1,700&family=Inter:wght@400;600;800&family=Lora:ital,wght@1,600&display=swap');
 
 :root{
   --primary: #1e3a8a;
@@ -13,7 +13,6 @@
   --glass: rgba(255, 255, 255, 0.98);
 }
 
-/* BASE STYLE & SECURITY */
 body{
   margin:0; font-family: 'Inter', sans-serif;
   background: linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
@@ -22,113 +21,100 @@ body{
   user-select: none;
 }
 
-/* HEADER - FIXED MOBILE ALIGNMENT */
+/* BRANDING */
 .header{
   display:flex; justify-content:space-between; align-items:center;
-  padding:12px 15px; color:#fff; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px);
+  padding:20px 15px; color:#fff; background: rgba(0,0,0,0.6); backdrop-filter: blur(15px);
 }
-.title h1{ margin:0; font-size:15px; letter-spacing: 1px; font-weight: 800; }
-.nav-btns { display: flex; gap: 5px; }
-.nav-btns button {
-  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-  color: white; padding: 5px 10px; border-radius: 5px; font-size: 10px; cursor: pointer;
+.title h1{ margin:0; font-family: 'Lora', serif; font-style: italic; font-weight: 600; font-size: 20px; text-transform: uppercase; }
+/* TAGLINE CHANGED TO WHITE */
+.title p { margin:2px 0 0 0; font-family: 'Playfair Display', serif; font-size: 12px; color: #38bdf8; font-weight: 500; letter-spacing: 2px; }
+
+/* REMOVED BOLD FROM NAV BUTTONS */
+.nav-btns button { 
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); 
+    color: white; padding: 8px 15px; border-radius: 30px; font-size: 10px; 
+    font-weight: 400; cursor: pointer; 
 }
 
-/* MAIN CONTAINER */
+/* CONTAINER - SET TO AUTO HEIGHT FOR PROFESSIONAL FIT */
 .container{
-  background: var(--glass); margin:12px; border-radius:20px; padding:20px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+  background: var(--glass); margin:15px; border-radius:28px; padding:25px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+  animation: slideUp 0.6s ease-out;
+  height: auto; min-height: fit-content; overflow: visible;
 }
 
-input{ 
-  width:100%; padding:12px; border-radius:10px; border:1px solid #e2e8f0; 
-  margin-bottom: 10px; box-sizing: border-box; font-size: 14px;
-}
-.btn-primary{ 
-  width:100%; padding:12px; border:none; border-radius:10px; 
-  background:var(--primary); color:#fff; font-weight: 700; cursor:pointer;
-}
-
-/* SCANNER BOX */
-#reader { width: 100%; border-radius: 15px; overflow: hidden; margin-top: 10px; border: 2px solid var(--primary); display:none; }
-
-/* LOADING ANIMATION */
-#loader {
-  display: none; margin: 20px auto; width: 30px; height: 30px;
-  border: 4px solid #f3f3f3; border-top: 4px solid var(--primary);
-  border-radius: 50%; animation: spin 1s linear infinite;
+/* IMAGE BOX - SPACING ADDED */
+.image-container { width: 100%; display: flex; justify-content: center; margin: 25px 0; }
+.full-img { 
+  max-width: 75%; height: auto; border-radius: 12px; 
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+  animation: zoomIn 0.5s ease;
 }
 
-/* SPECIMEN DISPLAY */
-.specimen-card { margin-top: 20px; animation: slideIn 0.5s ease-out; }
-.full-img { width: 100%; border-radius: 12px; margin-bottom: 15px; max-height: 280px; object-fit: contain; background: #fff; border: 1px solid #eee; }
+.section-label { font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-top: 18px; letter-spacing: 1.5px; }
+.scientific { font-family: 'Playfair Display', serif; font-style: italic; font-size: 26px; color: #0f172a; margin: 5px 0 0 0; }
+.tree { margin-top: 10px; font-family: monospace; font-size: 13px; background: #f8fafc; padding: 15px; border-radius: 12px; border-left: 3px solid var(--primary); }
 
-.section-label { font-size: 10px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-top: 15px; }
-.scientific { font-family: 'Playfair Display', serif; font-style: italic; font-size: 24px; color: #0f172a; margin: 2px 0; }
-.common { font-weight: 500; color: #64748b; font-size: 14px; margin-bottom: 15px; }
+.pdf-frame { width: 100%; height: 450px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 15px; }
 
-/* CLASSIFICATION TITLES */
-.tree { margin-top: 10px; font-family: monospace; font-size: 13px; background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #f1f5f9; }
-.tree b { color: var(--primary); font-size: 11px; text-transform: uppercase; }
+/* PROFILE POPUP */
+.modal { position:fixed; inset:0; background:rgba(0,0,0,0.96); display:none; justify-content:center; align-items:center; z-index: 9999; }
+.id-card { background: white; padding: 30px; border-radius: 20px; width: 85%; max-width: 340px; border-top: 8px solid var(--primary); }
+#p_name { margin:0; font-family: 'Times New Roman', Times, serif; font-size: 28px; color: #1a1a1a; font-weight: 400; }
 
-/* PDF */
-.pdf-viewer { width: 100%; height: 500px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 15px; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* HISTORY TABLE - ONE LINE FIX */
-.history-box { max-height: 200px; overflow: auto; border-radius: 10px; border: 1px solid #eee; margin-top: 10px; }
-table { width: 100%; font-size: 11px; border-collapse: collapse; white-space: nowrap; }
-td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; }
-
-/* PROFILE MODAL */
-.modal { position:fixed; inset:0; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index: 9999; }
-.id-card { background: white; padding: 25px; border-radius: 20px; width: 85%; max-width: 320px; text-align: left; }
-.qr-box { display: flex; justify-content: center; margin: 15px 0; }
-
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-@keyframes slideIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+.spinner { margin: 0 auto 10px; width: 30px; height: 30px; border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
 </style>
 </head>
 
-<body oncontextmenu="return false">
+<body>
 
 <div class="header">
   <div class="title">
-    <h1>ZEN DNA</h1>
-    <p>LOYOLA ZOOLOGY MUSEUM</p>
+    <h1>MUSEUM DATABASE</h1>
+    <p>ZEN - DNA | LOYOLA COLLEGE</p>
   </div>
   <div class="nav-btns">
-    <button onclick="openProfile()">PROFILE</button>
-    <button onclick="logout()">LOGOUT</button>
+    <button onclick="openProfile()">Profile</button>
+    <button onclick="logout()">Logout</button>
   </div>
 </div>
 
 <div class="container">
-  <input id="scanId" placeholder="Enter Specimen ID...">
-  <button class="btn-primary" onclick="scan()">SEARCH DATABASE</button>
+  <input id="scanId" style="width:95%; padding:14px; border-radius:12px; border:1px solid #ddd; margin-bottom:10px; font-family: inherit;" placeholder="Enter Specimen ID...">
+  <button onclick="scan()" style="width:100%; padding:14px; background:var(--primary); color:white; border:none; border-radius:12px; font-weight:800; cursor:pointer;">SEARCH</button>
   
-  <div id="reader"></div>
-  <button id="camBtn" onclick="toggleScanner()" style="background:var(--accent); margin-top:10px;" class="btn-primary">TAP TO SCAN QR</button>
+  <div id="reader" style="width:100%; display:none; border-radius:15px; overflow:hidden; margin-top:15px;"></div>
+  <button id="camBtn" onclick="toggleScanner()" style="background:var(--accent); color:white; border:none; border-radius:12px; padding:10px; width:100%; font-weight:800; font-size:12px; margin-top:10px;">OPEN SCANNER</button>
 
-  <div id="loader"></div>
+  <div id="loader" style="display:none; text-align:center; margin-top:20px;">
+    <div class="spinner"></div>
+    <p style="font-size:10px; font-weight:900; color:var(--primary);">Loading from Database, Please Wait...</p>
+  </div>
+  
   <div id="result"></div>
 
-  <h4 style="margin:25px 0 10px; font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase;">Scan History</h4>
-  <input id="histSearch" placeholder="Search in history..." oninput="filterHistory(this.value)">
-  <div class="history-box">
-    <table>
-      <tbody id="historyTable"></tbody>
-    </table>
+  <h4 style="margin:40px 0 10px; font-family:'Montserrat', sans-serif; font-size:9px; font-weight:900; color:#94a3b8; text-transform:uppercase;">Recent History</h4>
+  <input id="histSearch" style="width:100%; padding:10px; font-size:12px; border:1px solid #eee; border-radius:8px; margin-bottom:10px;" placeholder="Filter logs..." oninput="filterHistory(this.value)">
+  <div style="max-height: 120px; overflow: auto; border: 1px solid #eee; border-radius:10px;">
+    <table style="width:100%; font-size:11px; border-collapse: collapse;"><tbody id="historyTable"></tbody></table>
   </div>
 </div>
 
 <div class="modal" id="profileModal">
   <div class="id-card">
-    <h2 id="p_name" style="margin:0; color:var(--primary);">USER NAME</h2>
-    <div id="p_role" style="font-size:12px; font-weight:700; color:#64748b; margin-bottom:15px;">ROLE</div>
-    <div id="p_details"></div>
-    <div class="qr-box" id="p_qr"></div>
-    <div id="p_id" style="text-align:center; font-family:monospace; font-weight:800; color:var(--primary);">UID: ---</div>
-    <button onclick="closeProfile()" style="margin-top:20px; background:#334155;" class="btn-primary">CLOSE</button>
+    <div style="font-size: 10px; font-weight: 900; color: var(--accent); letter-spacing: 2px; margin-bottom: 10px;">MUSEUM DATABASE IDENTITY SYSTEM</div>
+    <h2 id="p_name">USER NAME</h2>
+    <div id="p_role" style="font-size:12px; font-weight:400; color:#64748b; margin-bottom:15px;">Access Level: ---</div>
+    <div id="p_details" style="border-top: 1px solid #eee; padding-top:10px;"></div>
+    <div id="p_qr" style="display:flex; justify-content:center; padding:15px;"></div>
+    <div id="p_id" style="text-align:center; font-family:monospace; font-weight:900; color:var(--primary); background:#f1f5f9; padding:8px; border-radius:8px;">UID: ---</div>
+    <button onclick="closeProfile()" style="margin-top:20px; width:100%; padding:12px; background:#334155; color:white; border:none; border-radius:12px; font-weight:400;">CLOSE IDENTITY</button>
   </div>
 </div>
 
@@ -145,18 +131,16 @@ let html5QrCode;
 
 function toggleScanner() {
   const reader = document.getElementById("reader");
-  const btn = document.getElementById("camBtn");
   if(reader.style.display === "none") {
     reader.style.display = "block";
-    btn.innerText = "CLOSE CAMERA";
     html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start({facingMode:"environment"}, {fps:15, qrbox:220}, msg => {
+    html5QrCode.start({facingMode:"environment"}, {fps:10, qrbox:250}, msg => {
       document.getElementById("scanId").value = msg;
       scan();
       toggleScanner();
     });
   } else {
-    if(html5QrCode) html5QrCode.stop().then(() => { reader.style.display = "none"; btn.innerText = "TAP TO SCAN QR"; });
+    if(html5QrCode) html5QrCode.stop().then(() => { reader.style.display = "none"; });
   }
 }
 
@@ -175,33 +159,33 @@ function scan() {
     loader.style.display="none";
     if(res.status === "success") {
       const d = res.data;
-      // IMAGE FIX: Handles "file/d/ID/view" and converts to direct "uc?id=ID"
       const imgMatch = d.Image?.match(/[-\w]{25,}/);
-      const imgSrc = imgMatch ? `https://drive.google.com/uc?export=view&id=${imgMatch[0]}` : "";
+      const imgSrc = imgMatch ? `https://drive.google.com/thumbnail?id=${imgMatch[0]}&sz=w1000` : "";
+      const pdfMatch = d.Pdf?.match(/[-\w]{25,}/);
 
       resultDiv.innerHTML = `
         <div class="specimen-card">
-          ${imgSrc ? `<img src="${imgSrc}" class="full-img">` : ''}
+          <div class="image-container">
+            ${imgSrc ? `<img src="${imgSrc}" class="full-img" alt="Specimen">` : ''}
+          </div>
           <div class="section-label">Nomenclature</div>
           <h2 class="scientific">${d.Scientific_Name}</h2>
-          <div class="common">${d.Common_Name} | ID: ${id}</div>
-
+          <div style="font-family:'Inter', sans-serif; font-weight:600; color:#64748b; margin-top:4px;">${d.Common_Name}</div>
+          <div class="section-label">Unique Identity</div>
+          <div style="font-weight:800; color:var(--primary); font-size:18px;">${id}</div>
           <div class="section-label">Classification</div>
           <div class="tree">
-            <b>Kingdom:</b> Animalia<br>
-            <b>Phylum:</b> ${d.Phylum}<br>
-            <b>Class:</b> ${d.Class}
+            <b>Kingdom:</b> Animalia<br>└── <b>Phylum:</b> ${d.Phylum}<br>&nbsp;&nbsp;&nbsp;&nbsp;└── <b>Class:</b> ${d.Class}
           </div>
-
-          <div class="section-label">Documentation</div>
-          ${d.Pdf ? `<iframe src="https://drive.google.com/file/d/${d.Pdf.match(/[-\w]{25,}/)[0]}/preview" class="pdf-viewer"></iframe>` : ''}
+          <div class="section-label">Record</div>
+          ${pdfMatch ? `<iframe src="https://drive.google.com/file/d/${pdfMatch[0]}/preview" class="pdf-frame"></iframe>` : '<p style="font-size:11px; color:#94a3b8;">No PDF available.</p>'}
         </div>
       `;
       loadHistory();
-    } else if (res.status === "restricted") {
-      resultDiv.innerHTML = "<p style='color:red; text-align:center;'>⛔ ACCESS RESTRICTED</p>";
     } else {
-      resultDiv.innerHTML = "<p style='text-align:center;'>🔍 NO SPECIMEN FOUND</p>";
+      // NOT FOUND POP UP FOR 3 SECONDS
+      resultDiv.innerHTML = "<p id='tempError' style='text-align:center; font-weight:600; color:#64748b; padding:20px;'>RECORD NOT FOUND</p>";
+      setTimeout(() => { document.getElementById('tempError').style.display = 'none'; }, 3000);
     }
   });
 }
@@ -209,7 +193,7 @@ function scan() {
 function loadHistory() {
   fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`).then(r=>r.json()).then(res=>{
     let html="";
-    res.data.reverse().forEach(d => html += `<tr><td style="color:#64748b;">${d.date}</td><td style="font-weight:700; color:var(--primary); text-align:right;">${d.id}</td></tr>`);
+    res.data.reverse().forEach(d => html += `<tr style="border-bottom:1px solid #f1f5f9;"><td style="padding:10px; color:#64748b;">${d.date}</td><td style="font-weight:800; color:var(--primary); text-align:right; padding:10px;">${d.id}</td></tr>`);
     document.getElementById("historyTable").innerHTML = html;
   });
 }
@@ -221,18 +205,18 @@ function filterHistory(v) {
 
 function openProfile() {
   document.getElementById("p_name").innerText = user.name.toUpperCase();
-  document.getElementById("p_role").innerText = user.roleName || "MEMBER";
-  document.getElementById("p_id").innerText = `UID: ${user.id}`;
+  document.getElementById("p_role").innerText = `Access Level: ${user.roleName || "MEMBER"}`;
+  document.getElementById("p_id").innerText = `ID: ${user.id}`;
   let detailHtml = "";
   Object.entries(user).forEach(([k, v]) => {
     if(!['status','role','name','id','roleName'].includes(k) && v) {
-      detailHtml += `<div style="display:flex; justify-content:space-between; font-size:11px; padding:5px 0; border-bottom:1px solid #f1f5f9;"><span style="color:#94a3b8; text-transform:uppercase;">${k.replace(/_/g,' ')}</span><b>${v}</b></div>`;
+      detailHtml += `<div style="display:flex; justify-content:space-between; font-size:11px; padding:8px 0; border-bottom:1px solid #f8fafc;"><span style="color:#94a3b8; text-transform:uppercase; font-size:9px;">${k.replace(/_/g,' ')}</span><b style="color:#334155; font-weight:400;">${v}</b></div>`;
     }
   });
   document.getElementById("p_details").innerHTML = detailHtml;
   const qrBox = document.getElementById("p_qr");
   qrBox.innerHTML = "";
-  new QRCode(qrBox, { text: user.id, width: 120, height: 120 });
+  new QRCode(qrBox, { text: user.id, width: 140, height: 140 });
   document.getElementById("profileModal").style.display = "flex";
 }
 
