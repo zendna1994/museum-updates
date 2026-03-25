@@ -9,6 +9,7 @@
   --primary:#1e3a8a;
 }
 
+/* BODY */
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
@@ -21,9 +22,13 @@ body{
 .header{
   display:flex;
   justify-content:space-between;
-  padding:10px;
+  align-items:center;
+  padding:12px;
   color:#fff;
 }
+.title h1{margin:0;font-size:18px;}
+.title p{margin:0;font-size:11px;color:#ccc;}
+.icons span{margin-left:12px;cursor:pointer;font-size:18px;}
 
 /* CARD */
 .container{
@@ -33,36 +38,77 @@ body{
   padding:15px;
 }
 
-/* HISTORY */
-.history{
-  max-height:200px;
-  overflow:auto;
-  margin-top:10px;
-}
-
-table{
+/* INPUT */
+input{
   width:100%;
-  font-size:12px;
-}
-td{
-  padding:6px;
-  border-bottom:1px solid #eee;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
-.scientific{font-style:italic;}
+/* BUTTON */
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:#fff;
+}
+
+/* RESULT */
+.scientific{font-style:italic;font-size:16px;}
 .common{font-weight:bold;}
+.specimen-img{width:100%;border-radius:10px;margin-top:10px;}
+
+/* TREE */
+.tree{margin-top:10px;text-align:center;}
+.node{background:#f3f4f6;padding:8px;border-radius:10px;margin:5px;}
+
+/* HISTORY */
+.history{max-height:200px;overflow:auto;margin-top:10px;}
+table{width:100%;font-size:12px;border-collapse:collapse;}
+td{border-bottom:1px solid #eee;padding:6px;}
+.sc{font-style:italic;}
+.cm{font-weight:bold;}
+
+/* PROFILE */
+.profile-popup{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  display:none;
+  justify-content:center;
+  align-items:center;
+}
+.profile-box{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+}
+.profile-box::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:url('https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png') center/250px no-repeat;
+  opacity:0.12;
+}
 </style>
 </head>
 
-<body>
+<body oncontextmenu="return false">
 
+<!-- HEADER -->
 <div class="header">
-  <div>
-    <h3>MUSEUM DATABASE</h3>
-    <small>ZEN - DNA</small>
+  <div class="title">
+    <h1>MUSEUM DATABASE</h1>
+    <p>ZEN - DNA</p>
   </div>
-  <div>
-    👤 🔓
+  <div class="icons">
+    <span onclick="openProfile()">👤</span>
+    <span onclick="logout()">🔓</span>
   </div>
 </div>
 
@@ -70,6 +116,10 @@ td{
 
 <input id="scanId" placeholder="Scan / Enter ID">
 <button onclick="scan()">SCAN</button>
+
+<div id="reader"></div>
+<button onclick="startScanner()">START CAMERA</button>
+<button onclick="stopScanner()">STOP CAMERA</button>
 
 <div id="result"></div>
 
@@ -81,42 +131,130 @@ td{
 
 </div>
 
+<!-- PROFILE -->
+<div class="profile-popup" id="profile">
+  <div class="profile-box">
+    <button onclick="closeProfile()">Close</button>
+    <div id="profileData"></div>
+  </div>
+</div>
+
+<footer style="text-align:center;color:#ddd;">© 2026 ZEN - DNA. All rights reserved.</footer>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
 <script>
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
+/* LOGIN CHECK */
 const user=JSON.parse(localStorage.getItem("user"));
 if(!user){ location.href="login.html"; }
 
-/* 🔥 LOAD HISTORY (REAL FROM SHEET) */
+const userLevel=parseInt(user.role);
+
+/* SCAN */
+function scan(){
+ const id=document.getElementById("scanId").value;
+
+ fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${userLevel}&key=${KEY}`)
+ .then(r=>r.json())
+ .then(res=>{
+   if(res.status==="restricted"){
+     result.innerHTML="<p style='color:red'>ACCESS DENIED</p>";
+     return;
+   }
+   if(res.status==="not_found"){
+     result.innerHTML="<p>No specimen found</p>";
+     return;
+   }
+
+   const d=res.data;
+
+   const imgId=d.Image?.match(/[-\w]{25,}/);
+   const img=imgId?`https://drive.google.com/uc?export=view&id=${imgId[0]}`:"";
+
+   const pdfId=d.PDF?.match(/[-\w]{25,}/);
+   const pdf=pdfId?`
+   <iframe src="https://drive.google.com/file/d/${pdfId[0]}/preview"
+   style="width:100%;height:350px;border:none;margin-top:10px;"></iframe>`:"";
+
+   result.innerHTML=`
+     <div class="scientific">${d.Scientific_Name}</div>
+     <div class="common">${d.Common_Name}</div>
+     ${img?`<img class="specimen-img" src="${img}">`:""}
+
+     <div class="tree">
+       <div class="node">🌍 Animalia</div>
+       <div class="node">🧬 ${d.Phylum}</div>
+       <div class="node">🐾 ${d.Class}</div>
+     </div>
+
+     ${pdf}
+   `;
+
+   loadHistory(); // refresh after valid scan
+ });
+}
+
+/* HISTORY (REAL FROM SHEET) */
 function loadHistory(){
  fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
  .then(r=>r.json())
  .then(res=>{
    let html="";
-
    res.data.forEach(d=>{
      html+=`
      <tr>
        <td>${d.date}</td>
        <td>${d.id}</td>
-       <td class="scientific">${d.Scientific_Name}</td>
-       <td class="common">${d.Common_Name}</td>
-     </tr>
-     `;
+       <td class="sc">${d.Scientific_Name}</td>
+       <td class="cm">${d.Common_Name}</td>
+     </tr>`;
    });
-
-   document.getElementById("historyTable").innerHTML=html;
+   historyTable.innerHTML=html;
  });
 }
 loadHistory();
 
 /* SEARCH */
-function filterHistory(val){
- val=val.toLowerCase();
- document.querySelectorAll("#historyTable tr").forEach(row=>{
-   row.style.display=row.innerText.toLowerCase().includes(val)?"":"none";
+function filterHistory(v){
+ v=v.toLowerCase();
+ document.querySelectorAll("#historyTable tr").forEach(r=>{
+   r.style.display=r.innerText.toLowerCase().includes(v)?"":"none";
  });
+}
+
+/* QR */
+let scanner;
+function startScanner(){
+ scanner=new Html5Qrcode("reader");
+ scanner.start({facingMode:"environment"},{fps:10,qrbox:200},
+ msg=>{
+   scanId.value=msg;
+   scan();
+   stopScanner();
+ });
+}
+function stopScanner(){ if(scanner) scanner.stop(); }
+
+/* PROFILE */
+function openProfile(){
+ let html=`<p><b>ID:</b> ${user.id}</p><p><b>Name:</b> ${user.name}</p>`;
+ Object.entries(user).forEach(([k,v])=>{
+   if(k!="id" && k!="name" && v){
+     html+=`<p><b>${k}:</b> ${v}</p>`;
+   }
+ });
+ profileData.innerHTML=html;
+ profile.style.display="flex";
+}
+function closeProfile(){ profile.style.display="none"; }
+
+/* LOGOUT */
+function logout(){
+ localStorage.clear();
+ location.href="login.html";
 }
 </script>
 
