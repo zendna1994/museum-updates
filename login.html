@@ -250,8 +250,10 @@ function login() {
     loginBtn.disabled = false;
 
     if (res.status === "success") {
-      localStorage.setItem("user", JSON.stringify(res));
-      
+        // Store the entire object which now includes the numeric role
+        localStorage.setItem("user", JSON.stringify(res)); 
+        window.location.href = "scanner.html";
+  
       if (parseInt(res.role) === 2) {
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("adminSelection").style.display = "block";
