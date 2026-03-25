@@ -7,7 +7,6 @@
 <style>
 :root{
   --primary:#1e3a8a;
-  --secondary:#065f46;
 }
 
 body{
@@ -16,159 +15,60 @@ body{
   background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
   url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg/960px-Rev_Fr_Charles_Leigh_SJ_Zoology_Museum_Loyola_College_JEG_IMG_1218.jpg');
   background-size:cover;
-  color:#111;
 }
 
 /* HEADER */
 .header{
-  text-align:center;
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
   color:#fff;
-  padding:15px;
 }
-.header h1{margin:0;font-size:18px;}
-.header p{margin:2px;font-size:11px;color:#ddd;}
 
-/* MAIN CARD */
+/* CARD */
 .container{
   background:#fff;
   margin:10px;
   border-radius:15px;
   padding:15px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.5);
-}
-
-/* INPUT */
-input{
-  width:100%;
-  padding:10px;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-button{
-  width:100%;
-  padding:10px;
-  margin-top:10px;
-  border:none;
-  border-radius:8px;
-  background:var(--primary);
-  color:#fff;
-  font-weight:700;
-}
-
-/* IMAGE */
-.specimen-img{
-  width:100%;
-  border-radius:10px;
-  margin-top:10px;
-  object-fit:cover;
-}
-
-/* TEXT */
-.scientific{font-style:italic;font-size:16px;}
-.common{font-weight:700;margin-top:3px;}
-
-/* 🌳 NEW TREE DESIGN */
-.tree {
-  margin-top:15px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-}
-
-.node {
-  background:#f9fafb;
-  border-left:4px solid var(--primary);
-  padding:10px 15px;
-  border-radius:10px;
-  width:80%;
-  text-align:center;
-  box-shadow:0 5px 10px rgba(0,0,0,0.1);
-  margin:5px 0;
-  font-size:13px;
-}
-
-.line {
-  width:2px;
-  height:15px;
-  background:#ccc;
 }
 
 /* HISTORY */
 .history{
-  max-height:150px;
+  max-height:200px;
   overflow:auto;
   margin-top:10px;
 }
 
 table{
   width:100%;
-  font-size:11px;
-  border-collapse:collapse;
+  font-size:12px;
 }
-td{border-bottom:1px solid #ddd;padding:5px;}
-
-/* PROFILE */
-.profile-popup{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
+td{
+  padding:6px;
+  border-bottom:1px solid #eee;
 }
 
-.profile-box{
-  background:#fff;
-  padding:20px;
-  border-radius:12px;
-  width:90%;
-  max-width:350px;
-  position:relative;
-  overflow:hidden;
-}
-
-.profile-box::before{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:url('https://static.wixstatic.com/media/e98a4d_b935ab57540b41bdb320efa88b5e69b1~mv2.png') center/200px no-repeat;
-  opacity:0.05;
-}
-
-.close{
-  position:absolute;
-  right:10px;
-  top:10px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-/* FOOTER */
-footer{
-  text-align:center;
-  font-size:11px;
-  color:#ddd;
-  margin:10px;
-}
+.scientific{font-style:italic;}
+.common{font-weight:bold;}
 </style>
 </head>
 
-<body oncontextmenu="return false">
+<body>
 
 <div class="header">
-  <h1>MUSEUM DATABASE</h1>
-  <p>ZEN - DNA</p>
+  <div>
+    <h3>MUSEUM DATABASE</h3>
+    <small>ZEN - DNA</small>
+  </div>
+  <div>
+    👤 🔓
+  </div>
 </div>
 
 <div class="container">
 
-<button onclick="openProfile()">PROFILE</button>
-
-<input id="scanId" placeholder="Enter / Scan Specimen ID">
+<input id="scanId" placeholder="Scan / Enter ID">
 <button onclick="scan()">SCAN</button>
 
 <div id="result"></div>
@@ -181,97 +81,42 @@ footer{
 
 </div>
 
-<!-- PROFILE -->
-<div class="profile-popup" id="profile">
-  <div class="profile-box">
-    <span class="close" onclick="closeProfile()">X</span>
-    <div id="profileData"></div>
-  </div>
-</div>
-
-<footer>© 2026 ZEN - DNA. All rights reserved.</footer>
-
 <script>
 const API="https://script.google.com/macros/s/AKfycbz_bifFkLBL2Wbv8snnRhRwqyt4AJGyqfvcoK3elir9sbMu5OSlpTk_KbDAVwxgem-V/exec";
 const KEY="ZEN_DNA_2026";
 
-/* 🔐 LOGIN PROTECTION (ADDED) */
 const user=JSON.parse(localStorage.getItem("user"));
-if (!user || !user.id) {
-  alert("Unauthorized Access! Please login.");
-  window.location.href = "login.html";
-}
+if(!user){ location.href="login.html"; }
 
-/* LOAD HISTORY */
+/* 🔥 LOAD HISTORY (REAL FROM SHEET) */
 function loadHistory(){
  fetch(`${API}?action=history&userId=${user.id}&key=${KEY}`)
  .then(r=>r.json())
  .then(res=>{
    let html="";
+
    res.data.forEach(d=>{
-     html+=`<tr><td>${d.date}</td><td>${d.id}</td></tr>`;
+     html+=`
+     <tr>
+       <td>${d.date}</td>
+       <td>${d.id}</td>
+       <td class="scientific">${d.Scientific_Name}</td>
+       <td class="common">${d.Common_Name}</td>
+     </tr>
+     `;
    });
+
    document.getElementById("historyTable").innerHTML=html;
  });
 }
 loadHistory();
 
-/* FILTER */
+/* SEARCH */
 function filterHistory(val){
-  val=val.toLowerCase();
-  let rows=document.querySelectorAll("#historyTable tr");
-  rows.forEach(r=>{
-    r.style.display=r.innerText.toLowerCase().includes(val)?"":"none";
-  });
-}
-
-/* SCAN */
-function scan(){
- const id=document.getElementById("scanId").value;
- fetch(`${API}?action=scan&id=${id}&userId=${user.id}&userLevel=${user.userLevel}&key=${KEY}`)
- .then(r=>r.json())
- .then(res=>{
-   if(res.status==="restricted"){
-     document.getElementById("result").innerHTML="<p style='color:red'>ACCESS DENIED</p>";
-     return;
-   }
-   if(res.status==="not_found"){
-     document.getElementById("result").innerHTML="<p>No specimen found</p>";
-     return;
-   }
-
-   const d=res.data;
-
-   document.getElementById("result").innerHTML=`
-     <div class="scientific">${d.Scientific_Name}</div>
-     <div class="common">${d.Common_Name}</div>
-
-     <img class="specimen-img" src="${d.Image.replace("view?usp=drivesdk","preview")}">
-
-     <!-- 🌳 UPDATED CLASSIFICATION -->
-     <div class="tree">
-       <div class="node">🌍 <b>Kingdom</b><br>Animalia</div>
-       <div class="line"></div>
-       <div class="node">🧬 <b>Phylum</b><br>${d.Phylum}</div>
-       <div class="line"></div>
-       <div class="node">🐾 <b>Class</b><br>${d.Class}</div>
-     </div>
-   `;
+ val=val.toLowerCase();
+ document.querySelectorAll("#historyTable tr").forEach(row=>{
+   row.style.display=row.innerText.toLowerCase().includes(val)?"":"none";
  });
-}
-
-/* PROFILE */
-function openProfile(){
- let html="";
- Object.entries(user).forEach(([k,v])=>{
-   if(v) html+=`<p><b>${k}:</b> ${v}</p>`;
- });
- document.getElementById("profileData").innerHTML=html;
- document.getElementById("profile").style.display="flex";
-}
-
-function closeProfile(){
- document.getElementById("profile").style.display="none";
 }
 </script>
 
